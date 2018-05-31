@@ -1,0 +1,4 @@
+/bin/
+/hl7-auth.log
+*.settings/*
+*/target/*
