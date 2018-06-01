@@ -18,3 +18,4 @@ hl7-auth/auth/target/classes/json/User.json
 hl7-auth/auth/target/classes/META-INF/MANIFEST.MF
 hl7-auth/auth/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
 hl7-auth/auth/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+/bin/
