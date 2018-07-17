@@ -6,7 +6,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 
@@ -14,6 +13,7 @@ import com.mongodb.ServerAddress;
 @EnableMongoRepositories(basePackages = {"gov.nist.hit.hl7.auth.repository"})
 
 public class MongoConfig extends AbstractMongoConfiguration {
+
   @Autowired
   Environment env;
 
@@ -29,14 +29,22 @@ public class MongoConfig extends AbstractMongoConfiguration {
 
 
   @Override
-  public Mongo mongo() throws Exception {
+  protected String getMappingBasePackage() {
+    return "gov.nist.hit.hl7.auth";
+  }
+
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.springframework.data.mongodb.config.AbstractMongoConfiguration#mongoClient()
+   */
+  @Override
+  public MongoClient mongoClient() {
     return new MongoClient(
         new ServerAddress(env.getProperty(DB_HOST), Integer.parseInt(env.getProperty(DB_PORT))));
   }
 
-  @Override
-  protected String getMappingBasePackage() {
-    return "gov.nist.hit.hl7.auth";
-  }
+
 
 }

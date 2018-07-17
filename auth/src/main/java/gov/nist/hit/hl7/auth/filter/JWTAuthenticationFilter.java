@@ -16,10 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -36,9 +37,14 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 
   @Autowired
-  private ShaPasswordEncoder encoder;
+  DaoAuthenticationProvider provider;
+
   @Autowired
   private CryptoUtil crypto;
+
+  @Autowired
+  private PasswordEncoder encoder;
+
   @Autowired
   Environment env;
 
@@ -61,10 +67,9 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     creds = mapper.readValue(request.getInputStream(), LoginRequest.class);
 
-    creds.setPassword(encoder.encodePassword(creds.getPassword(), creds.getUsername()));
     Authentication ret =
-        getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
-            creds.getUsername(), creds.getPassword(), Collections.emptyList()));
+        provider.authenticate(new UsernamePasswordAuthenticationToken(creds.getUsername(),
+            creds.getPassword(), Collections.emptyList()));
     return ret;
   }
 

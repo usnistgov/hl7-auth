@@ -19,6 +19,7 @@ public class CryptoUtilImpl implements CryptoUtil {
 
   public CryptoUtilImpl() {}
 
+
   @Override
   public PublicKey pub(String path)
       throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -28,7 +29,6 @@ public class CryptoUtilImpl implements CryptoUtil {
     kf.generatePublic(ks);
     return kf.generatePublic(ks);
   }
-
 
   @Override
   public PrivateKey priv(String path)
