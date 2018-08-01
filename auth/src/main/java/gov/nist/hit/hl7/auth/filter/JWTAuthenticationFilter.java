@@ -59,18 +59,28 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
   public Authentication attemptAuthentication(HttpServletRequest request,
       HttpServletResponse response)
       throws AuthenticationException, JsonParseException, JsonMappingException, IOException {
+    try {
 
-    ObjectMapper mapper = new ObjectMapper().configure(
-        com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      ObjectMapper mapper = new ObjectMapper().configure(
+          com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-    LoginRequest creds = new LoginRequest();
+      LoginRequest creds = new LoginRequest();
 
-    creds = mapper.readValue(request.getInputStream(), LoginRequest.class);
+      creds = mapper.readValue(request.getInputStream(), LoginRequest.class);
+      Authentication ret =
+          provider.authenticate(new UsernamePasswordAuthenticationToken(creds.getUsername(),
+              creds.getPassword(), Collections.emptyList()));
 
-    Authentication ret =
-        provider.authenticate(new UsernamePasswordAuthenticationToken(creds.getUsername(),
-            creds.getPassword(), Collections.emptyList()));
-    return ret;
+
+
+      return ret;
+    } catch (Exception e) {
+      response.sendError(response.SC_BAD_REQUEST, e.getMessage());
+      return null;
+
+    }
+
+
   }
 
   @Override
@@ -89,7 +99,7 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
       response.addHeader("Authorization", jwt);
 
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      e.printStackTrace();
+      response.sendError(response.SC_BAD_REQUEST, e.getMessage());
     }
   }
 }

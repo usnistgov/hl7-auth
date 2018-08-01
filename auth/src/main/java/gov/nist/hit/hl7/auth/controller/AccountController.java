@@ -4,12 +4,12 @@ import java.util.UUID;
 
 import javax.security.sasl.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,16 +39,21 @@ public class AccountController {
 
   @RequestMapping(value = "/register", method = RequestMethod.POST, produces = {"application/json"})
 
-  public @ResponseBody Account register(@RequestBody RegistrationRequest user) throws Exception {
+  public @ResponseBody Account register(@RequestBody RegistrationRequest user,
+      HttpServletResponse response) throws Exception {
     Account a = new Account();
 
 
     if (accountService.emailExist(user.getEmail())) {
-      throw new Exception("Email Already Used");
 
+      response.sendError(response.SC_BAD_REQUEST, "Email Already Used");
+      return null;
 
     } else if (accountService.userNameExist(user.getUsername())) {
-      throw new Exception("username Already Used");
+
+      response.sendError(response.SC_BAD_REQUEST, "username Already Used");
+      return null;
+
     } else {
       a.setFullName(user.getFullName());
       a.setEmail(user.getEmail());
@@ -66,12 +71,15 @@ public class AccountController {
 
   @RequestMapping(value = "password/reset", method = RequestMethod.POST)
   @ResponseBody
-  public void resetPassword(HttpServletRequest request,
-      @RequestBody ChangePasswordRequest requestObject) {
+  public boolean resetPassword(HttpServletRequest request,
+      @RequestBody ChangePasswordRequest requestObject, HttpServletResponse response)
+      throws Exception {
     Account user = accountService.findByEmail(requestObject.getEmail());
     if (user == null) {
-      throw new UsernameNotFoundException(
-          "User with email " + requestObject.getEmail() + "is not found");
+
+      response.sendError(response.SC_BAD_REQUEST,
+          "Could not found an account with E-mail :" + requestObject.getEmail());
+      return false;
     }
     String token = UUID.randomUUID().toString();
     accountService.createPasswordResetTokenForUser(user.getUsername(), token);
@@ -79,18 +87,23 @@ public class AccountController {
 
 
     sendAccountPasswordResetRequestNotification(user, url);
+    return true;
 
   }
 
   @RequestMapping(value = "password/reset/confirm", method = RequestMethod.POST)
   @ResponseBody
   public boolean ConfirmResetPassword(HttpServletRequest request,
-      @RequestBody ChangePasswordConfirmRequest requestObject) throws AuthenticationException {
+      @RequestBody ChangePasswordConfirmRequest requestObject, HttpServletResponse response)
+      throws Exception {
+    try {
 
+      return accountService.changePassword(requestObject.getPassword(), requestObject.getToken());
 
-    return accountService.changePassword(requestObject.getPassword(), requestObject.getToken());
-
-
+    } catch (Exception e) {
+      response.sendError(response.SC_BAD_REQUEST, "Could not change the password");
+      throw e;
+    }
 
   }
 
