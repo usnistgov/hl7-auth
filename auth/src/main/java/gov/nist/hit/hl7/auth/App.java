@@ -2,6 +2,8 @@ package gov.nist.hit.hl7.auth;
 
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,6 +19,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import gov.nist.hit.hl7.auth.repository.PrivilegeRepository;
+import gov.nist.hit.hl7.auth.service.AccountService;
 
 
 @SpringBootApplication
@@ -28,6 +31,9 @@ public class App implements CommandLineRunner {
 
   @Autowired
   PrivilegeRepository priviliges;
+
+  @Autowired
+  AccountService accountService;
 
 
 
@@ -65,19 +71,20 @@ public class App implements CommandLineRunner {
   public void run(String... arg0) throws Exception {
 
   }
-  // @PostConstruct
-  // void converAccounts() {
-  // try {
-  // Privilege user= new Privilege("USER");
-  // Privilege admin = new Privilege("ADMIN");
-  //
-  // priviliges.save(user);
-  // priviliges.save(admin);
-  // accountService.createAccountsFromLegacy();
-  // } catch (IOException e) {
-  // // TODO Auto-generated catch block
-  // e.printStackTrace();
-  // }
-  //
-  // }
+
+  @PostConstruct
+  void converAccounts() {
+    // try {
+    // Privilege user = new Privilege("USER");
+    // Privilege admin = new Privilege("ADMIN");
+    //
+    // priviliges.save(user);
+    // priviliges.save(admin);
+    // accountService.createAccountsFromLegacy();
+    // } catch (IOException e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+
+  }
 }

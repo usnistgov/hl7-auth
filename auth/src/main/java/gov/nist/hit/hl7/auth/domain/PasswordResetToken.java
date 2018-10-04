@@ -13,18 +13,20 @@ public class PasswordResetToken {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private String id;
+
   private static final int EXPIRATION = 60 * 24;
 
   private String username;
 
+  private String fullname;
+
+  private String email;
+
   private Date expiryDate;
-
-
 
   private String token;
 
   private String toolName;
-
 
   public String getId() {
     return id;
@@ -68,6 +70,22 @@ public class PasswordResetToken {
 
   public void setToolName(String toolName) {
     this.toolName = toolName;
+  }
+
+  public String getFullname() {
+    return fullname;
+  }
+
+  public void setFullname(String fullname) {
+    this.fullname = fullname;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
   }
 
 }

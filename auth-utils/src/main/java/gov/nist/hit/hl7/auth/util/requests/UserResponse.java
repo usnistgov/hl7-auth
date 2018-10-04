@@ -11,49 +11,39 @@
  */
 package gov.nist.hit.hl7.auth.util.requests;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+
 /**
  * @author ena3
  *
  */
-public class ChangePasswordConfirmRequest {
-
-  private String token;
-  private String password;
-  private String toolname;
-  private String username;
-  private String email;
-
-
+public class UserResponse {
   /**
-   * 
+   * @param username2
    */
-  public ChangePasswordConfirmRequest() {
+  public UserResponse(String username) {
     // TODO Auto-generated constructor stub
+    this.username = username;
   }
 
-  public String getToken() {
-    return token;
+  public UserResponse() {
+    // TODO Auto-generated constructor stub
+    super();
   }
 
-  public void setToken(String token) {
-    this.token = token;
+  public List<String> getAuthorities() {
+    return authorities;
   }
 
-  public String getPassword() {
-    return password;
+  public void setAuthorities(List<String> authorities) {
+    this.authorities = authorities;
   }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getToolname() {
-    return toolname;
-  }
-
-  public void setToolname(String toolname) {
-    this.toolname = toolname;
-  }
+  private String username;
+  private List<String> authorities = new ArrayList<String>();
 
   public String getUsername() {
     return username;
@@ -63,12 +53,9 @@ public class ChangePasswordConfirmRequest {
     this.username = username;
   }
 
-  public String getEmail() {
-    return email;
+  public void addAuthority(GrantedAuthority auth) {
+    authorities.add(auth.getAuthority());
   }
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
 
 }

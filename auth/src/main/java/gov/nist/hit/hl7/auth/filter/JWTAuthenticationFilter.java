@@ -2,8 +2,6 @@ package gov.nist.hit.hl7.auth.filter;
 
 import java.io.IOException;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Collections;
 import java.util.Date;
 
@@ -29,7 +27,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gov.nist.hit.hl7.auth.util.crypto.CryptoUtil;
+import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage;
+import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage.Status;
 import gov.nist.hit.hl7.auth.util.requests.LoginRequest;
+import gov.nist.hit.hl7.auth.util.requests.UserResponse;
+import gov.nist.hit.hl7.auth.util.service.AuthenticationConverterService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -44,6 +46,8 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
   @Autowired
   private PasswordEncoder encoder;
+  @Autowired
+  AuthenticationConverterService authConverter;
 
   @Autowired
   Environment env;
@@ -71,11 +75,27 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
           provider.authenticate(new UsernamePasswordAuthenticationToken(creds.getUsername(),
               creds.getPassword(), Collections.emptyList()));
 
+      ObjectMapper mapper_ = new ObjectMapper();
 
+      ConnectionResponseMessage<UserResponse> resp =
+          new ConnectionResponseMessage<UserResponse>(Status.SUCCESS, "Login Successfull",
+              "Login Successfull", null, false, new Date(), authConverter.getAuthentication(ret));
+      String responseString1 = mapper_.writeValueAsString(resp);
 
+      response.getWriter().write(responseString1);
+      response.setContentType("application/json");
       return ret;
     } catch (Exception e) {
-      response.sendError(response.SC_BAD_REQUEST, e.getMessage());
+      response.setStatus(403);
+      ConnectionResponseMessage<UserResponse> responseMessage =
+          new ConnectionResponseMessage<UserResponse>(Status.FAILED, "Authentication Error",
+              e.getLocalizedMessage(), null, false, new Date(), null);
+
+
+      ObjectMapper mapper = new ObjectMapper();
+      String responseString = mapper.writeValueAsString(responseMessage);
+      response.getWriter().write(responseString);
+      response.setContentType("application/json");
       return null;
 
     }
@@ -98,8 +118,20 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
           .claim("roles", springUser.getAuthorities()).compact();
       response.addHeader("Authorization", jwt);
 
-    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      response.sendError(response.SC_BAD_REQUEST, e.getMessage());
+    } catch (Exception e) {
+      ConnectionResponseMessage<UserResponse> responseMessage =
+          new ConnectionResponseMessage<UserResponse>(Status.FAILED, "Authentication Error",
+              e.getLocalizedMessage(), null, false, new Date(), null);
+
+
+      ObjectMapper mapper = new ObjectMapper();
+      String responseString = mapper.writeValueAsString(responseMessage);
+      response.reset();
+      response.setStatus(403);
+
+      response.getWriter().write(responseString);
+      response.setContentType("application/json");
+
     }
   }
 }

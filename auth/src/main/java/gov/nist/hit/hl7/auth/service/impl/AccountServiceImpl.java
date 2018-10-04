@@ -242,9 +242,11 @@ public class AccountServiceImpl implements AccountService {
 
 
   @Override
-  public void createPasswordResetTokenForUser(String username, String token) {
+  public PasswordResetToken createPasswordResetTokenForUser(Account user, String token) {
     PasswordResetToken mytoken = new PasswordResetToken();
-    mytoken.setUsername(username);
+    mytoken.setUsername(user.getUsername());
+    mytoken.setEmail(user.getEmail());
+    mytoken.setFullname(user.getFullName());
     mytoken.setToken(token);
 
     Date date = new Date();
@@ -252,6 +254,7 @@ public class AccountServiceImpl implements AccountService {
     mytoken.setExpiryDate(date);
 
     passwordResetTokenRepository.save(mytoken);
+    return mytoken;
   }
 
   @Override
@@ -273,7 +276,8 @@ public class AccountServiceImpl implements AccountService {
 
 
   @Override
-  public boolean changePassword(String newPassword, String token) throws AuthenticationException {
+  public PasswordResetToken changePassword(String newPassword, String token)
+      throws AuthenticationException {
     PasswordResetToken prt = passwordResetTokenRepository.findByToken(token);
     if (prt == null) {
       throw new AuthenticationException("No password resset token ");
@@ -292,7 +296,7 @@ public class AccountServiceImpl implements AccountService {
         acc.setPassword(encoder.encode(newPassword));
         accountRepository.save(acc);
         passwordResetTokenRepository.deleteById(prt.getId());
-        return true;
+        return prt;
       }
     }
   }

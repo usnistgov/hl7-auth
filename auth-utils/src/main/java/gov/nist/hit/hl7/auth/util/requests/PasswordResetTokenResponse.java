@@ -11,48 +11,33 @@
  */
 package gov.nist.hit.hl7.auth.util.requests;
 
+import java.util.Date;
+
 /**
  * @author ena3
  *
  */
-public class ChangePasswordConfirmRequest {
+public class PasswordResetTokenResponse {
+  private String id;
 
-  private String token;
-  private String password;
-  private String toolname;
   private String username;
+
+  private String fullname;
+
   private String email;
 
+  private Date expiryDate;
 
-  /**
-   * 
-   */
-  public ChangePasswordConfirmRequest() {
-    // TODO Auto-generated constructor stub
+  private String token;
+
+  private String toolName;
+
+  public String getId() {
+    return id;
   }
 
-  public String getToken() {
-    return token;
-  }
-
-  public void setToken(String token) {
-    this.token = token;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getToolname() {
-    return toolname;
-  }
-
-  public void setToolname(String toolname) {
-    this.toolname = toolname;
+  public void setId(String id) {
+    this.id = id;
   }
 
   public String getUsername() {
@@ -63,6 +48,14 @@ public class ChangePasswordConfirmRequest {
     this.username = username;
   }
 
+  public String getFullname() {
+    return fullname;
+  }
+
+  public void setFullname(String fullname) {
+    this.fullname = fullname;
+  }
+
   public String getEmail() {
     return email;
   }
@@ -70,5 +63,30 @@ public class ChangePasswordConfirmRequest {
   public void setEmail(String email) {
     this.email = email;
   }
+
+  public Date getExpiryDate() {
+    return expiryDate;
+  }
+
+  public void setExpiryDate(Date expiryDate) {
+    this.expiryDate = expiryDate;
+  }
+
+  public String getToken() {
+    return token;
+  }
+
+  public void setToken(String token) {
+    this.token = token;
+  }
+
+  public String getToolName() {
+    return toolName;
+  }
+
+  public void setToolName(String toolName) {
+    this.toolName = toolName;
+  }
+
 
 }

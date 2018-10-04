@@ -25,7 +25,6 @@ public class Account {
   @DBRef
   private Set<Privilege> privileges;
 
-
   public String getUsername() {
     return username;
   }

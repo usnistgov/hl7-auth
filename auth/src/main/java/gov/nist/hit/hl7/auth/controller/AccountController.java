@@ -1,5 +1,6 @@
 package gov.nist.hit.hl7.auth.controller;
 
+import java.util.Date;
 import java.util.UUID;
 
 import javax.security.sasl.AuthenticationException;
@@ -17,10 +18,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import gov.nist.hit.hl7.auth.domain.Account;
+import gov.nist.hit.hl7.auth.domain.PasswordResetToken;
+import gov.nist.hit.hl7.auth.exception.PasswordChangeException;
+import gov.nist.hit.hl7.auth.exception.RegistrationException;
 import gov.nist.hit.hl7.auth.service.AccountService;
 import gov.nist.hit.hl7.auth.util.requests.ChangePasswordConfirmRequest;
 import gov.nist.hit.hl7.auth.util.requests.ChangePasswordRequest;
+import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage;
+import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage.Status;
+import gov.nist.hit.hl7.auth.util.requests.PasswordResetTokenResponse;
 import gov.nist.hit.hl7.auth.util.requests.RegistrationRequest;
+import gov.nist.hit.hl7.auth.util.requests.UserResponse;
 
 @Controller
 public class AccountController {
@@ -39,20 +47,19 @@ public class AccountController {
 
   @RequestMapping(value = "/register", method = RequestMethod.POST, produces = {"application/json"})
 
-  public @ResponseBody Account register(@RequestBody RegistrationRequest user,
-      HttpServletResponse response) throws Exception {
+  public @ResponseBody ConnectionResponseMessage<UserResponse> register(
+      @RequestBody RegistrationRequest user, HttpServletResponse response) throws Exception {
     Account a = new Account();
 
 
     if (accountService.emailExist(user.getEmail())) {
 
-      response.sendError(response.SC_BAD_REQUEST, "Email Already Used");
-      return null;
+      throw new RegistrationException("e-mail: " + user.getEmail() + "is Already used");
 
     } else if (accountService.userNameExist(user.getUsername())) {
 
-      response.sendError(response.SC_BAD_REQUEST, "username Already Used");
-      return null;
+      throw new Exception("username: " + user.getUsername() + "is Already used");
+
 
     } else {
       a.setFullName(user.getFullName());
@@ -61,9 +68,10 @@ public class AccountController {
       a.setOrganization(user.getOrganization());
       a.setPassword(user.getPassword());
       a.setSignedConfidentialityAgreement(user.getSignedConfidentialityAgreement());
-
       accountService.createNoramlUser(a);
-      return a;
+      UserResponse userResponse = new UserResponse(user.getUsername());
+      return new ConnectionResponseMessage<UserResponse>(Status.SUCCESS, null,
+          "Registration successfull", null, false, new Date(), userResponse);
     }
 
 
@@ -71,38 +79,58 @@ public class AccountController {
 
   @RequestMapping(value = "password/reset", method = RequestMethod.POST)
   @ResponseBody
-  public boolean resetPassword(HttpServletRequest request,
-      @RequestBody ChangePasswordRequest requestObject, HttpServletResponse response)
-      throws Exception {
+  public ConnectionResponseMessage<PasswordResetTokenResponse> getResetTokenString(
+      HttpServletRequest request, @RequestBody ChangePasswordRequest requestObject,
+      HttpServletResponse response) throws PasswordChangeException {
     Account user = accountService.findByEmail(requestObject.getEmail());
     if (user == null) {
-
-      response.sendError(response.SC_BAD_REQUEST,
+      throw new PasswordChangeException(
           "Could not found an account with E-mail :" + requestObject.getEmail());
-      return false;
     }
-    String token = UUID.randomUUID().toString();
-    accountService.createPasswordResetTokenForUser(user.getUsername(), token);
-    String url = requestObject.getUrl() + "/" + token;
+    try {
+      String token = UUID.randomUUID().toString();
+      PasswordResetToken tokenObject = accountService.createPasswordResetTokenForUser(user, token);
+
+      PasswordResetTokenResponse tokenResponse = convertToken(tokenObject);
 
 
-    sendAccountPasswordResetRequestNotification(user, url);
-    return true;
+      return new ConnectionResponseMessage<PasswordResetTokenResponse>(Status.SUCCESS, null,
+          "Password change request success", null, false, new Date(), tokenResponse);
+    } catch (Exception e) {
+      throw new PasswordChangeException(e.getMessage());
+    }
+  }
 
+  /**
+   * @param tokenObject
+   * @return
+   */
+  private PasswordResetTokenResponse convertToken(PasswordResetToken tokenObject) {
+    // TODO Auto-generated method stub
+    PasswordResetTokenResponse response = new PasswordResetTokenResponse();
+    response.setEmail(tokenObject.getEmail());
+    response.setFullname(tokenObject.getFullname());
+
+    response.setUsername(tokenObject.getUsername());
+    response.setToken(tokenObject.getToken());
+    response.setExpiryDate(tokenObject.getExpiryDate());
+    response.setToolName(tokenObject.getToolName());
+    return response;
   }
 
   @RequestMapping(value = "password/reset/confirm", method = RequestMethod.POST)
   @ResponseBody
-  public boolean ConfirmResetPassword(HttpServletRequest request,
-      @RequestBody ChangePasswordConfirmRequest requestObject, HttpServletResponse response)
-      throws Exception {
+  public ConnectionResponseMessage<PasswordResetTokenResponse> ConfirmResetPassword(
+      HttpServletRequest request, @RequestBody ChangePasswordConfirmRequest requestObject,
+      HttpServletResponse response) throws Exception {
     try {
-
-      return accountService.changePassword(requestObject.getPassword(), requestObject.getToken());
-
+      PasswordResetToken responseToken =
+          accountService.changePassword(requestObject.getPassword(), requestObject.getToken());
+      PasswordResetTokenResponse tokenResponse = convertToken(responseToken);
+      return new ConnectionResponseMessage<PasswordResetTokenResponse>(Status.SUCCESS, null,
+          "Password successfull changed", null, false, new Date(), tokenResponse);
     } catch (Exception e) {
-      response.sendError(response.SC_BAD_REQUEST, "Could not change the password");
-      throw e;
+      throw new PasswordChangeException(e.getMessage());
     }
 
   }
@@ -137,6 +165,4 @@ public class AccountController {
       ex.printStackTrace();
     }
   }
-
-
 }

@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import gov.nist.hit.hl7.auth.domain.Account;
+import gov.nist.hit.hl7.auth.domain.PasswordResetToken;
 import gov.nist.hit.hl7.auth.domain.Privilege;
 
 @Service
@@ -43,9 +44,10 @@ public interface AccountService extends UserDetailsService {
 
   public Account findByEmail(String email);
 
-  public void createPasswordResetTokenForUser(String username, String token);
+  public PasswordResetToken createPasswordResetTokenForUser(Account user, String token);
 
   boolean validateToken(String token) throws AuthenticationException;
 
-  boolean changePassword(String newPassword, String token) throws AuthenticationException;
+  PasswordResetToken changePassword(String newPassword, String token)
+      throws AuthenticationException;
 }
