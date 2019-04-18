@@ -109,7 +109,7 @@ public class AccountController {
     // TODO Auto-generated method stub
     PasswordResetTokenResponse response = new PasswordResetTokenResponse();
     response.setEmail(tokenObject.getEmail());
-    response.setFullname(tokenObject.getFullname());
+    response.setFullName(tokenObject.getFullname());
 
     response.setUsername(tokenObject.getUsername());
     response.setToken(tokenObject.getToken());

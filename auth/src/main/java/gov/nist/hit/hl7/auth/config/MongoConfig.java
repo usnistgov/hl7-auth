@@ -24,7 +24,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
 
   @Override
   protected String getDatabaseName() {
-   return env.getProperty(DB_NAME);
+	  return env.getProperty(DB_NAME);
   }
 
 
@@ -43,7 +43,6 @@ public class MongoConfig extends AbstractMongoConfiguration {
   public MongoClient mongoClient() {
     return new MongoClient(
         new ServerAddress(env.getProperty(DB_HOST), Integer.parseInt(env.getProperty(DB_PORT))));
-
 
   }
 

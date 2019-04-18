@@ -8,7 +8,7 @@ public class RegistrationRequest {
 	private String password;
 	private String email;
 
-	private String fullname;
+	private String fullName;
 	private String organization;
 	private Boolean signedConfidentialityAgreement = false;
 	
@@ -35,12 +35,6 @@ public class RegistrationRequest {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getFullName() {
-		return fullname;
-	}
-	public void setFullName(String fullName) {
-		this.fullname = fullName;
-	}
 	public String getOrganization() {
 		return organization;
 	}
@@ -52,6 +46,14 @@ public class RegistrationRequest {
 	}
 	public void setSignedConfidentialityAgreement(Boolean signedConfidentialityAgreement) {
 		this.signedConfidentialityAgreement = signedConfidentialityAgreement;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
 	}
 	
 	
