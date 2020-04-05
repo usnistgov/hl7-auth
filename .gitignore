@@ -22,3 +22,6 @@ hl7-auth/auth/target/maven-status/maven-compiler-plugin/compile/default-compile/
 *.class
 org.eclipse.wst.common.project.facet.core.xml
 auth/hl7-auth.*.gz
+.classpath
+.settings/
+hl7-auth.log
