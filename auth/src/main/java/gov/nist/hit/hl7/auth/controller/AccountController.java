@@ -1,5 +1,6 @@
 package gov.nist.hit.hl7.auth.controller;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +30,7 @@ import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage;
 import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage.Status;
 import gov.nist.hit.hl7.auth.util.requests.PasswordResetTokenResponse;
 import gov.nist.hit.hl7.auth.util.requests.RegistrationRequest;
+import gov.nist.hit.hl7.auth.util.requests.UserListResponse;
 import gov.nist.hit.hl7.auth.util.requests.UserResponse;
 
 @Controller
@@ -101,6 +104,7 @@ public class AccountController {
     }
   }
 
+  
   /**
    * @param tokenObject
    * @return
@@ -145,6 +149,20 @@ public class AccountController {
 
   }
 
+  @RequestMapping(value = "api/users", method = RequestMethod.GET)
+  @ResponseBody
+  public UserListResponse getAllUsers(HttpServletResponse request)
+      throws IOException {
+
+	  UserListResponse results = new UserListResponse();
+	  accountService.findAll().forEach(a -> {
+		  UserResponse u = new UserResponse();
+		  u.setUsername(a.getUsername());
+		  results.getUsers().add(u);
+	  });
+	  
+    return results;
+  }
 
 
   private void sendAccountPasswordResetRequestNotification(Account acc, String url) {
