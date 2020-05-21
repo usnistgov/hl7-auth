@@ -1,6 +1,10 @@
 spring:
   application:
     name: hl7-auth
+  data:
+    rest:
+      base-path: api
+
 server: 
     port: 8090
     contextPath: /
