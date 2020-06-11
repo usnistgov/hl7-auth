@@ -35,7 +35,7 @@ import gov.nist.hit.hl7.auth.util.service.AuthenticationConverterService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class JWTAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
 
   @Autowired
@@ -52,7 +52,7 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
   @Autowired
   Environment env;
 
-  public JWTAuthenticationFilter(String url, AuthenticationManager authenticationManager) {
+  public JWTAuthenticationProcessingFilter(String url, AuthenticationManager authenticationManager) {
     super(new AntPathRequestMatcher(url));
     setAuthenticationManager(authenticationManager);
 
