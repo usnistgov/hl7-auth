@@ -41,14 +41,12 @@ public class AuthenticationController {
   AccountManagmenEmailService emailService;
 
 
-  /*
   @RequestMapping(value = "/api/login", method = RequestMethod.POST)
-  public ConnectionResponseMessage<UserResponse> login(@RequestBody LoginRequest user,
-      HttpServletResponse response) throws AuthenticationException, IOException {
+  public ConnectionResponseMessage<UserResponse> login(@RequestBody LoginRequest user, HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {
 
     try {
 
-      ConnectionResponseMessage<UserResponse> resp = authService.connect(response, user);
+      ConnectionResponseMessage<UserResponse> resp = authService.connect(request, response, user);
       return resp;
 
     } catch (AuthenticationException e) {
@@ -59,11 +57,11 @@ public class AuthenticationController {
   }
 
   @RequestMapping(value = "/api/register", method = RequestMethod.POST)
-  public ConnectionResponseMessage<UserResponse> register(@RequestBody RegistrationRequest user)
+  public ConnectionResponseMessage<UserResponse> register(@RequestBody RegistrationRequest user, HttpServletRequest req)
       throws AuthenticationException {
     try {
 
-      ConnectionResponseMessage<UserResponse> response = authService.register(user);
+      ConnectionResponseMessage<UserResponse> response = authService.register(req, user);
       emailService.sendResgistrationEmail(user.getFullName(), user.getUsername(), user.getEmail());
       return response;
 
@@ -74,7 +72,7 @@ public class AuthenticationController {
     }
   }
 
-  @RequestMapping(value = "api/logout", method = RequestMethod.GET)
+  @RequestMapping(value = "/api/logout", method = RequestMethod.GET)
   @ResponseBody
   public void logout(HttpServletRequest req, HttpServletResponse res,
       Authentication authentication) {
@@ -85,15 +83,15 @@ public class AuthenticationController {
 
   }
 
-  @RequestMapping(value = "api/authentication", method = RequestMethod.GET)
+  @RequestMapping(value = "/api/authentication", method = RequestMethod.GET)
   @ResponseBody
-  public UserResponse getCurrentUser(HttpServletResponse res, Authentication authentication)
+  public UserResponse getCurrentUser(HttpServletRequest req, HttpServletResponse res, Authentication authentication)
       throws IOException {
 
     return auth.getAuthentication(authentication);
   }
 
-  @RequestMapping(value = "api/password/reset", method = RequestMethod.POST)
+  @RequestMapping(value = "/api/password/reset", method = RequestMethod.POST)
   @ResponseBody
   public ConnectionResponseMessage<PasswordResetTokenResponse> resetPaswordRequest(
       HttpServletRequest req, HttpServletResponse res, @RequestBody String email)
@@ -101,7 +99,7 @@ public class AuthenticationController {
     try {
 
       ConnectionResponseMessage<PasswordResetTokenResponse> response =
-          authService.requestPasswordChange(email);
+          authService.requestPasswordChange(req, email);
       if (response.getData() instanceof PasswordResetTokenResponse) {
         PasswordResetTokenResponse responseData = (PasswordResetTokenResponse) (response.getData());
         emailService.sendResetTokenUrl(responseData.getFullName(), responseData.getUsername(),
@@ -117,21 +115,21 @@ public class AuthenticationController {
 
   }
 
-  @RequestMapping(value = "api/password/validatetoken", method = RequestMethod.POST)
+  @RequestMapping(value = "/api/password/validatetoken", method = RequestMethod.POST)
   @ResponseBody
   public ConnectionResponseMessage<Boolean> validateToken(HttpServletRequest req, HttpServletResponse res,
       @RequestBody String token) throws AuthenticationException {
-	   return new  ConnectionResponseMessage<Boolean>(Status.SUCCESS, null, "token is Valid", null, false, new Date(), authService.validateToken(token));
+	   return new  ConnectionResponseMessage<Boolean>(Status.SUCCESS, null, "token is Valid", null, false, new Date(), authService.validateToken(req, token));
   }
 
-  @RequestMapping(value = "api/password/reset/confirm", method = RequestMethod.POST)
+  @RequestMapping(value = "/api/password/reset/confirm", method = RequestMethod.POST)
   @ResponseBody
   public ConnectionResponseMessage<PasswordResetTokenResponse> confirmPasswordReset(
       HttpServletRequest req, HttpServletResponse res,
       @RequestBody ChangePasswordConfirmRequest requestObject) throws AuthenticationException {
     try {
       ConnectionResponseMessage<PasswordResetTokenResponse> response =
-          authService.confirmChangePassword(requestObject);
+          authService.confirmChangePassword(req, requestObject);
 
       if (response.getData() instanceof PasswordResetTokenResponse) {
         PasswordResetTokenResponse responseData = (PasswordResetTokenResponse) (response.getData());
@@ -146,7 +144,6 @@ public class AuthenticationController {
     }
 
   }
-  */
 
 
   private String getUrl(HttpServletRequest request, String token) {

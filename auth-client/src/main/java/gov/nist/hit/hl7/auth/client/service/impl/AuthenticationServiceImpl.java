@@ -14,6 +14,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -128,17 +129,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
   }
 
+  private static String getUrl(HttpServletRequest request) {
+    String scheme = request.getScheme();             // http
+    String serverName = request.getServerName();     // hostname.com
+    int serverPort = request.getServerPort();        // 80
+
+    // Reconstruct original requesting URL
+    StringBuilder url = new StringBuilder();
+    url.append(scheme).append("://").append(serverName);
+
+    if (serverPort != 80 && serverPort != 443) {
+        url.append(":").append(serverPort);
+    }
+
+    return url.toString();
+  }
 
   @Override
-  public ConnectionResponseMessage<UserResponse> connect(HttpServletResponse response,
+  public ConnectionResponseMessage<UserResponse> connect(
+      HttpServletRequest req, HttpServletResponse response,
       LoginRequest user) throws AuthenticationException {
     try {
       HttpHeaders headers = new HttpHeaders();
       headers.add("Content-type", "application/json");
       HttpEntity<LoginRequest> request = new HttpEntity<>(user);
-      System.out.println(env.getProperty(AUTH_URL));
+      System.out.println(getUrl(req));
       ResponseEntity<ConnectionResponseMessage<UserResponse>> call =
-          restTemplate.exchange(env.getProperty(AUTH_URL) + "/api/login", HttpMethod.POST, request,
+          restTemplate.exchange(
+                  getUrl(req) + "/api/tool/login",
+                  HttpMethod.POST, request,
               new ParameterizedTypeReference<ConnectionResponseMessage<UserResponse>>() {});
       call.getBody().setHide(true);
       if (call.getStatusCode() == HttpStatus.OK) {
@@ -170,7 +189,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
-  public ConnectionResponseMessage<UserResponse> register(RegistrationRequest user)
+  public ConnectionResponseMessage<UserResponse> register(HttpServletRequest req, RegistrationRequest user)
       throws AuthenticationException {
 
     try {
@@ -181,7 +200,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
       ResponseEntity<ConnectionResponseMessage<UserResponse>> response =
-          restTemplate.exchange(env.getProperty(AUTH_URL) + "/api/register", HttpMethod.POST, request,
+          restTemplate.exchange(getUrl(req) + "/api/tool/register", HttpMethod.POST, request,
               new ParameterizedTypeReference<ConnectionResponseMessage<UserResponse>>() {});
 
 
@@ -206,7 +225,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
   @Override
-  public ConnectionResponseMessage<PasswordResetTokenResponse> requestPasswordChange(String email)
+  public ConnectionResponseMessage<PasswordResetTokenResponse> requestPasswordChange(HttpServletRequest req, String email)
       throws AuthenticationException {
     // TODO Auto-generated method stub
     try {
@@ -218,7 +237,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       HttpEntity<ChangePasswordRequest> request =
           new HttpEntity<ChangePasswordRequest>(changePasswordRequest);
       ResponseEntity<ConnectionResponseMessage<PasswordResetTokenResponse>> response = restTemplate
-          .exchange(env.getProperty(AUTH_URL) + "/api/password/reset", HttpMethod.POST, request,
+          .exchange(env.getProperty(AUTH_URL) + "/api/tool/password/reset", HttpMethod.POST, request,
               new ParameterizedTypeReference<ConnectionResponseMessage<PasswordResetTokenResponse>>() {});
       return response.getBody();
     } catch (HttpClientErrorException e) {
@@ -234,7 +253,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
-  public boolean validateToken(String token) throws AuthenticationException {
+  public boolean validateToken(HttpServletRequest req, String token) throws AuthenticationException {
     // TODO Auto-generated method stub
     try {
       HttpHeaders headers = new HttpHeaders();
@@ -243,7 +262,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
       HttpEntity<String> request = new HttpEntity<String>(token);
       ResponseEntity<Boolean> response =
-          restTemplate.exchange(env.getProperty(AUTH_URL) + "/api/password/validatetoken",
+          restTemplate.exchange(env.getProperty(AUTH_URL) + "/api/tool/password/validatetoken",
               HttpMethod.POST, request, Boolean.class);
       return response.getBody();
     } catch (HttpClientErrorException e) {
@@ -266,8 +285,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
-  public ConnectionResponseMessage<PasswordResetTokenResponse> confirmChangePassword(
-      ChangePasswordConfirmRequest requestObject) throws AuthenticationException {
+  public ConnectionResponseMessage<PasswordResetTokenResponse> confirmChangePassword(HttpServletRequest req, ChangePasswordConfirmRequest requestObject) throws AuthenticationException {
     // TODO Auto-generated method stub
     try {
       HttpHeaders headers = new HttpHeaders();
@@ -276,7 +294,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       HttpEntity<ChangePasswordConfirmRequest> request =
           new HttpEntity<ChangePasswordConfirmRequest>(requestObject);
       ResponseEntity<ConnectionResponseMessage<PasswordResetTokenResponse>> response = restTemplate
-          .exchange(env.getProperty(AUTH_URL) + "/api/password/reset/confirm", HttpMethod.POST, request,
+          .exchange(env.getProperty(AUTH_URL) + "/api/tool/password/reset/confirm", HttpMethod.POST, request,
               new ParameterizedTypeReference<ConnectionResponseMessage<PasswordResetTokenResponse>>() {});
       return response.getBody();
 
@@ -307,7 +325,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    * .security.core.Authentication)
    */
   @Override
-  public UserResponse getAuthentication(Authentication authentication) {
+  public UserResponse getAuthentication(HttpServletRequest req, Authentication authentication) {
     UserResponse response = new UserResponse();
 
     if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {

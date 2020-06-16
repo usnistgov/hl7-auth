@@ -11,6 +11,7 @@
  */
 package gov.nist.hit.hl7.auth.client.service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
@@ -28,20 +29,24 @@ import gov.nist.hit.hl7.auth.client.exception.AuthenticationException;
  *
  */
 public interface AuthenticationService {
-  public ConnectionResponseMessage<UserResponse> connect(HttpServletResponse response,
+  public ConnectionResponseMessage<UserResponse> connect(
+      HttpServletRequest req, HttpServletResponse response,
       LoginRequest user) throws AuthenticationException;
 
-  public ConnectionResponseMessage<UserResponse> register(RegistrationRequest user)
+  public ConnectionResponseMessage<UserResponse> register(
+          HttpServletRequest req, RegistrationRequest user)
       throws AuthenticationException;
 
-  ConnectionResponseMessage<PasswordResetTokenResponse> requestPasswordChange(String email)
+  ConnectionResponseMessage<PasswordResetTokenResponse> requestPasswordChange(
+          HttpServletRequest req, String email)
       throws AuthenticationException;
 
-  boolean validateToken(String token) throws AuthenticationException;
+  boolean validateToken(HttpServletRequest req, String token) throws AuthenticationException;
 
   ConnectionResponseMessage<PasswordResetTokenResponse> confirmChangePassword(
-      ChangePasswordConfirmRequest requestObject) throws AuthenticationException;
+          HttpServletRequest req, ChangePasswordConfirmRequest requestObject) throws AuthenticationException;
 
-  public UserResponse getAuthentication(Authentication authentiction);
+  public UserResponse getAuthentication(
+          HttpServletRequest req, Authentication authentiction);
 
 }
