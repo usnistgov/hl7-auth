@@ -48,7 +48,7 @@ public class AccountController {
   private JavaMailSender mailSender;
 
 
-  @RequestMapping(value = "/api/register", method = RequestMethod.POST, produces = {"application/json"})
+  @RequestMapping(value = "/api/tool/register", method = RequestMethod.POST, produces = {"application/json"})
 
   public @ResponseBody ConnectionResponseMessage<UserResponse> register(
       @RequestBody RegistrationRequest user, HttpServletResponse response) throws Exception {
@@ -80,7 +80,7 @@ public class AccountController {
 
   }
 
-  @RequestMapping(value = "/api/password/reset", method = RequestMethod.POST)
+  @RequestMapping(value = "/api/tool/password/reset", method = RequestMethod.POST)
   @ResponseBody
   public ConnectionResponseMessage<PasswordResetTokenResponse> getResetTokenString(
       HttpServletRequest request, @RequestBody ChangePasswordRequest requestObject,
@@ -122,7 +122,7 @@ public class AccountController {
     return response;
   }
 
-  @RequestMapping(value = "/api/password/reset/confirm", method = RequestMethod.POST)
+  @RequestMapping(value = "/api/tool/password/reset/confirm", method = RequestMethod.POST)
   @ResponseBody
   public ConnectionResponseMessage<PasswordResetTokenResponse> ConfirmResetPassword(
       HttpServletRequest request, @RequestBody ChangePasswordConfirmRequest requestObject,
@@ -140,7 +140,7 @@ public class AccountController {
   }
 
 
-  @RequestMapping(value = "/api/password/validatetoken", method = RequestMethod.POST)
+  @RequestMapping(value = "/api/tool/password/validatetoken", method = RequestMethod.POST)
   @ResponseBody
   public boolean resetPassword(HttpServletRequest request, @RequestBody String token)
       throws AuthenticationException {
@@ -149,7 +149,7 @@ public class AccountController {
 
   }
 
-  @RequestMapping(value = "api/users", method = RequestMethod.GET)
+  @RequestMapping(value = "/api/tool/users", method = RequestMethod.GET)
   @ResponseBody
   public UserListResponse getAllUsers(HttpServletResponse request)
       throws IOException {

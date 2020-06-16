@@ -65,7 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Bean
   protected JWTAuthenticationProcessingFilter loginFilter() throws Exception {
-    return new JWTAuthenticationProcessingFilter("/api/login", authenticationManager);
+    return new JWTAuthenticationProcessingFilter("/api/tool/login", authenticationManager);
   }
 
   @Override
@@ -75,8 +75,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     http.csrf().disable();
     http.formLogin().disable();
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    http.authorizeRequests().antMatchers("/api/login", "/api/register/").permitAll();
-    http.authorizeRequests().antMatchers("/api/password/**").permitAll();
+    http.authorizeRequests().antMatchers("/api/tool/login", "/api/tool/register/").permitAll();
+    http.authorizeRequests().antMatchers("/api/tool/password/**").permitAll();
     http.addFilterBefore(
             loginFilter(), UsernamePasswordAuthenticationFilter.class);
     http.addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -86,9 +86,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         csrf().disable()
         .formLogin().disable()
         .authorizeRequests()
-            .antMatchers("/api/login").permitAll()
-            .antMatchers("/api/register").permitAll()
-            .antMatchers("/api/password/**").permitAll()
+            .antMatchers("/api/tool/login").permitAll()
+            .antMatchers("/api/tool/register").permitAll()
+            .antMatchers("/api/tool/password/**").permitAll()
             .antMatchers("/api/**").fullyAuthenticated()
             .and()
         .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
