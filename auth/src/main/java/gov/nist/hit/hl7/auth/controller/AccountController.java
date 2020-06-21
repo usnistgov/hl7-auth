@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import gov.nist.hit.hl7.auth.domain.Account;
+import gov.nist.hit.hl7.auth.domain.AccountLog;
 import gov.nist.hit.hl7.auth.domain.PasswordResetToken;
 import gov.nist.hit.hl7.auth.exception.PasswordChangeException;
 import gov.nist.hit.hl7.auth.exception.RegistrationException;
@@ -149,21 +150,24 @@ public class AccountController {
 
   }
 
-  @RequestMapping(value = "/api/tool/users", method = RequestMethod.GET)
-  @ResponseBody
-  public UserListResponse getAllUsers(HttpServletResponse request)
-      throws IOException {
+  @RequestMapping(value = "/api/tool/accountlog", method = RequestMethod.POST, produces = {"application/json"})
 
-	  UserListResponse results = new UserListResponse();
-	  accountService.findAll().forEach(a -> {
-		  UserResponse u = new UserResponse();
-		  u.setUsername(a.getUsername());
-		  results.getUsers().add(u);
-	  });
-	  
-    return results;
+  public @ResponseBody ConnectionResponseMessage<UserResponse> accountlog(
+      @RequestBody RegistrationRequest user, HttpServletResponse response) throws Exception {
+    AccountLog a = new AccountLog();
+
+    if (accountService.userNameExist(user.getUsername()) == false) {
+
+      throw new Exception("username: " + user.getUsername() + "is not found");
+
+    } else {
+      a.setUsername(user.getUsername());
+
+      UserResponse userResponse = new UserResponse(user.getUsername());
+      return new ConnectionResponseMessage<UserResponse>(Status.SUCCESS, null,
+          "User Logging successfull", null, false, new Date(), userResponse);
+    }
   }
-
 
   private void sendAccountPasswordResetRequestNotification(Account acc, String url) {
     SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
