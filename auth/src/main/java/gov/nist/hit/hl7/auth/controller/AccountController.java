@@ -33,6 +33,7 @@ import gov.nist.hit.hl7.auth.util.requests.PasswordResetTokenResponse;
 import gov.nist.hit.hl7.auth.util.requests.RegistrationRequest;
 import gov.nist.hit.hl7.auth.util.requests.UserListResponse;
 import gov.nist.hit.hl7.auth.util.requests.UserResponse;
+import gov.nist.hit.hl7.auth.util.requests.AccountLogRequest;
 
 @Controller
 public class AccountController {
@@ -153,7 +154,7 @@ public class AccountController {
   @RequestMapping(value = "/api/tool/accountlog", method = RequestMethod.POST, produces = {"application/json"})
 
   public @ResponseBody ConnectionResponseMessage<UserResponse> accountlog(
-      @RequestBody RegistrationRequest user, HttpServletResponse response) throws Exception {
+      @RequestBody AccountLogRequest user, HttpServletResponse response) throws Exception {
     AccountLog a = new AccountLog();
 
     if (accountService.userNameExist(user.getUsername()) == false) {
@@ -162,7 +163,9 @@ public class AccountController {
 
     } else {
       a.setUsername(user.getUsername());
+      a.setFrom(user.getFrom());
 
+      accountService.createLog(a);
       UserResponse userResponse = new UserResponse(user.getUsername());
       return new ConnectionResponseMessage<UserResponse>(Status.SUCCESS, null,
           "User Logging successfull", null, false, new Date(), userResponse);

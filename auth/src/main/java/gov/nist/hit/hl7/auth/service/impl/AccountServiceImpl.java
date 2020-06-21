@@ -27,11 +27,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.nist.hit.hl7.auth.converter.OldAccount;
 import gov.nist.hit.hl7.auth.converter.OldUser;
 import gov.nist.hit.hl7.auth.domain.Account;
+import gov.nist.hit.hl7.auth.domain.AccountLog;
 import gov.nist.hit.hl7.auth.domain.PasswordResetToken;
 import gov.nist.hit.hl7.auth.domain.Privilege;
 import gov.nist.hit.hl7.auth.repository.AccountRepository;
 import gov.nist.hit.hl7.auth.repository.PasswordResetTokenRepository;
 import gov.nist.hit.hl7.auth.repository.PrivilegeRepository;
+import gov.nist.hit.hl7.auth.repository.AccountLogRepository;
 import gov.nist.hit.hl7.auth.service.AccountService;
 
 @Service("accountService")
@@ -48,6 +50,9 @@ public class AccountServiceImpl implements AccountService {
 
   @Autowired
   private PasswordEncoder encoder;
+
+  @Autowired
+  private AccountLogRepository accountLogRepository;
 
   @Override
   public Account getAccountByUsername(String username) {
@@ -301,5 +306,10 @@ public class AccountServiceImpl implements AccountService {
     }
   }
 
+  @Override
+  public void createLog(AccountLog accountLog) {
+      accountLog.setDate(new Date());
+      accountLogRepository.save(accountLog);
+  }
 
 }

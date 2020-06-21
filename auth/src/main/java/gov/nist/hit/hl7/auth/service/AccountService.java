@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import gov.nist.hit.hl7.auth.domain.Account;
 import gov.nist.hit.hl7.auth.domain.PasswordResetToken;
 import gov.nist.hit.hl7.auth.domain.Privilege;
+import gov.nist.hit.hl7.auth.domain.AccountLog;
 
 @Service
 public interface AccountService extends UserDetailsService {
@@ -50,4 +51,6 @@ public interface AccountService extends UserDetailsService {
 
   PasswordResetToken changePassword(String newPassword, String token)
       throws AuthenticationException;
+
+  void createLog(AccountLog accountLog);
 }
