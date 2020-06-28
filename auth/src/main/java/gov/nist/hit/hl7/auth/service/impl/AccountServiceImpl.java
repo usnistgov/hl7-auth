@@ -84,6 +84,14 @@ public class AccountServiceImpl implements AccountService {
     }
     return null;
   }
+  @Override
+  public Account updateNoramlUser(Account account) {
+    if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
+      accountRepository.save(account);
+      return account;
+    }
+    return null;
+  }
 
   @Override
   public void deleteAll() {

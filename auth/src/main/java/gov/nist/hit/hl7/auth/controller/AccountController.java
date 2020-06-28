@@ -188,6 +188,43 @@ public class AccountController {
     }
   }
 
+  @RequestMapping(value = "/api/tool/user", method = RequestMethod.POST, produces = {"application/json"})
+
+  public @ResponseBody ConnectionResponseMessage<UserResponse> update(
+      @RequestBody RegistrationRequest user, HttpServletResponse response) throws Exception {
+
+    Account a = accountService.getAccountByUsername(user.getUsername());
+    if (a == null) {
+
+        throw new Exception("username: " + user.getUsername() + "is not found");
+
+    } else if (accountService.emailExist(user.getEmail())) {
+
+      throw new Exception("e-mail: " + user.getEmail() + "is Already used");
+
+    } else {
+        UserResponse u = new UserResponse(user.getUsername());
+
+        if (user.getFullName() != null) {
+            a.setFullName(user.getFullName());
+            u.setFullName(user.getFullName());
+        }
+        if (user.getEmail() != null) {
+            a.setEmail(user.getEmail());
+            u.setEmail(user.getEmail());
+        }
+        if (user.getOrganization() != null) {
+            a.setOrganization(user.getOrganization());
+            u.setOrganization(user.getOrganization());
+        }
+
+        accountService.updateNoramlUser(a);
+
+        return new ConnectionResponseMessage<UserResponse>(Status.SUCCESS, null,
+          "UserProfileUpdate successfull", null, false, new Date(), u);
+    }
+  }
+
   @RequestMapping(value = "/api/tool/accountlog", method = RequestMethod.POST, produces = {"application/json"})
 
   public @ResponseBody ConnectionResponseMessage<UserResponse> accountlog(
