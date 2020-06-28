@@ -151,6 +151,21 @@ public class AccountController {
 
   }
 
+  @RequestMapping(value = "/api/tool/users", method = RequestMethod.GET)
+  @ResponseBody
+  public UserListResponse getAllUsers(HttpServletResponse request)
+      throws IOException {
+
+	  UserListResponse results = new UserListResponse();
+	  accountService.findAll().forEach(a -> {
+		  UserResponse u = new UserResponse();
+		  u.setUsername(a.getUsername());
+		  results.getUsers().add(u);
+	  });
+
+    return results;
+  }
+
   @RequestMapping(value = "/api/tool/accountlog", method = RequestMethod.POST, produces = {"application/json"})
 
   public @ResponseBody ConnectionResponseMessage<UserResponse> accountlog(
