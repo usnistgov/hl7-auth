@@ -198,7 +198,8 @@ public class AccountController {
 
         throw new Exception("username: " + user.getUsername() + "is not found");
 
-    } else if (accountService.emailExist(user.getEmail())) {
+        
+    } else if (!a.getEmail().equals(user.getEmail()) &&  accountService.emailExist(user.getEmail())) {
 
       throw new Exception("e-mail: " + user.getEmail() + "is Already used");
 
