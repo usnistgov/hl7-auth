@@ -24,6 +24,7 @@ public interface AccountService extends UserDetailsService {
   public Account createAdmin(Account account);
 
   public Account createNoramlUser(Account account);
+  public Account updateNoramlUser(Account account);
 
   public Account createUser(Account account, Privilege p);
 
