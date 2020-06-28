@@ -14,6 +14,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -164,6 +165,27 @@ public class AccountController {
 	  });
 
     return results;
+  }
+
+  @RequestMapping(value = "/api/tool/user/{username}", method = RequestMethod.GET)
+  @ResponseBody
+  public UserResponse getCurrentUser(@PathVariable("username") String username, HttpServletResponse request)
+      throws Exception {
+
+    Account account = accountService.getAccountByUsername(username);
+    if (account == null) {
+
+        throw new Exception("username: " + username + "is not found");
+
+    } else {
+        UserResponse u = new UserResponse();
+        u.setUsername(username);
+        u.setFullName(account.getFullName());
+        u.setEmail(account.getEmail());
+        u.setOrganization(account.getOrganization());
+
+        return u;
+    }
   }
 
   @RequestMapping(value = "/api/tool/accountlog", method = RequestMethod.POST, produces = {"application/json"})

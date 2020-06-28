@@ -45,6 +45,10 @@ public class UserResponse {
   private String username;
   private List<String> authorities = new ArrayList<String>();
 
+  private String email;
+  private String fullName;
+  private String organization;
+
   public String getUsername() {
     return username;
   }
@@ -57,5 +61,22 @@ public class UserResponse {
     authorities.add(auth.getAuthority());
   }
 
-
+  public String getEmail() {
+    return email;
+  }
+  public void setEmail(String email) {
+    this.email = email;
+  }
+  public String getOrganization() {
+    return organization;
+  }
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
+  public String getFullName() {
+    return fullName;
+  }
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
+  }
 }
