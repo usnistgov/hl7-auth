@@ -34,8 +34,8 @@ db:
   port: 27017
   host: localhost 
 key: 
-  public: /usr/local/etc/hit/auth/publicKey.txt
-  private: /usr/local/etc/hit/auth/privateKey.txt
+  public: D:\Works2\hl7-auth\auth-utils\KeyPair\publicKey.txt
+  private: D:\Works2\hl7-auth\auth-utils\KeyPair\privateKey.txt
     
 email:
    port: 25
