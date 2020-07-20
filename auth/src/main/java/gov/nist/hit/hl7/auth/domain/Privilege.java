@@ -14,7 +14,7 @@ public class Privilege implements GrantedAuthority {
 	private static final long serialVersionUID = -4620177956250204657L;
 	@JsonIgnore
 	@org.springframework.data.annotation.Id
-	private String Id;
+	private String id;
 	private String role;
 	
 	public Privilege(){
@@ -27,10 +27,10 @@ public class Privilege implements GrantedAuthority {
 	}
 
 	public String getId() {
-		return Id;
+		return id;
 	}
 	public void setId(String id) {
-		Id = id;
+		this.id = id;
 	}
 	public String getRole() {
 		return role;
@@ -41,7 +41,7 @@ public class Privilege implements GrantedAuthority {
 
 	@Override
 	public String toString() {
-		return "Privilege [Id=" + Id + ", role=" + role + "]";
+		return "Privilege [Id=" + id + ", role=" + role + "]";
 	}
 
 	@Override
