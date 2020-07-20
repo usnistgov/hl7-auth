@@ -161,6 +161,10 @@ public class AccountController {
 	  accountService.findAll().forEach(a -> {
 		  UserResponse u = new UserResponse();
 		  u.setUsername(a.getUsername());
+		  u.setEmail(a.getEmail());
+		  u.setFullName(a.getFullName());
+		  u.setOrganization(a.getOrganization());
+		  u.setAuthorities(a.getPrivilegesStr());
 		  results.getUsers().add(u);
 	  });
 
