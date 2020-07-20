@@ -1,5 +1,7 @@
 package gov.nist.hit.hl7.auth.domain;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
@@ -12,102 +14,113 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Document
 public class Account {
 
-  @Id
-  private String id;
-  private Long accountId; // only for legacy
-  private String username;
-  private String password;
-  private String email;
-  private boolean pending = false;
-  private String fullName;
-  private String organization;
-  private Boolean signedConfidentialityAgreement = false;
-  @DBRef
-  private Set<Privilege> privileges;
+	@Id
+	private String id;
+	private Long accountId; // only for legacy
+	private String username;
+	private String password;
+	private String email;
+	private boolean pending = false;
+	private String fullName;
+	private String organization;
+	private Boolean signedConfidentialityAgreement = false;
+	@DBRef
+	private Set<Privilege> privileges;
 
-  public String getUsername() {
-    return username;
-  }
+	public String getUsername() {
+		return username;
+	}
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-  public String getPassword() {
-    return password;
-  }
+	public String getPassword() {
+		return password;
+	}
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-  public String getEmail() {
-    return email;
-  }
+	public String getEmail() {
+		return email;
+	}
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-  public boolean isPending() {
-    return pending;
-  }
+	public boolean isPending() {
+		return pending;
+	}
 
-  public void setPending(boolean pending) {
-    this.pending = pending;
-  }
+	public void setPending(boolean pending) {
+		this.pending = pending;
+	}
 
-  public String getFullName() {
-    return fullName;
-  }
+	public String getFullName() {
+		return fullName;
+	}
 
-  public void setFullName(String fullName) {
-    this.fullName = fullName;
-  }
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
 
-  public String getOrganization() {
-    return organization;
-  }
+	public String getOrganization() {
+		return organization;
+	}
 
-  public void setOrganization(String organization) {
-    this.organization = organization;
-  }
+	public void setOrganization(String organization) {
+		this.organization = organization;
+	}
 
-  public Boolean getSignedConfidentialityAgreement() {
-    return signedConfidentialityAgreement;
-  }
+	public Boolean getSignedConfidentialityAgreement() {
+		return signedConfidentialityAgreement;
+	}
 
-  public void setSignedConfidentialityAgreement(Boolean signedConfidentialityAgreement) {
-    this.signedConfidentialityAgreement = signedConfidentialityAgreement;
-  }
+	public void setSignedConfidentialityAgreement(Boolean signedConfidentialityAgreement) {
+		this.signedConfidentialityAgreement = signedConfidentialityAgreement;
+	}
 
-  public Set<Privilege> getPrivileges() {
-    return privileges;
-  }
+	public Set<Privilege> getPrivileges() {
+		return privileges;
+	}
 
-  public void setPrivileges(Set<Privilege> privileges) {
-    this.privileges = privileges;
-  }
+	public List<String> getPrivilegesStr() {
+		if (this.privileges != null) {
+			List<String> result = new ArrayList<String>();
+			this.privileges.forEach(p -> {
+				result.add(p.getRole());
+			});
+			return result;
+		}
+		return null;
+	}
 
-  @Transient
-  public UserDetails userDetails() {
-    return new User(getUsername(), getPassword(), !isPending(), true, true, true, privileges);
-  }
+	public void setPrivileges(Set<Privilege> privileges) {
+		this.privileges = privileges;
+	}
 
-  public String getId() {
-    return id;
-  }
+	@Transient
+	public UserDetails userDetails() {
+		return new User(getUsername(), getPassword(), !isPending(), true, true, true, privileges);
+	}
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	public String getId() {
+		return id;
+	}
 
-  public Long getAccountId() {
-    return accountId;
-  }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public void setAccountId(Long accountId) {
-    this.accountId = accountId;
-  }
+	public Long getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(Long accountId) {
+		this.accountId = accountId;
+	}
 
 }
