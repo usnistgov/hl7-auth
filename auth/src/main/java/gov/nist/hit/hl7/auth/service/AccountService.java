@@ -54,4 +54,12 @@ public interface AccountService extends UserDetailsService {
       throws AuthenticationException;
 
   void createLog(AccountLog accountLog);
+
+public Account makePending(Account account);
+
+public Account relaxPending(Account account);
+
+Account makeAdmin(Account account);
+
+Account makeNoramlUser(Account account);
 }

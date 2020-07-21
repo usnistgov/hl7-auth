@@ -1,6 +1,7 @@
 package gov.nist.hit.hl7.auth.domain;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

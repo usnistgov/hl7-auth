@@ -64,6 +64,18 @@ public class AccountServiceImpl implements AccountService {
 
     if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
       account.setPassword(encoder.encode(account.getPassword()));
+      Privilege userPrevilege = privilegeRepository.findByRole("USER");
+      if(userPrevilege == null) {
+    	  userPrevilege = new Privilege();
+    	  userPrevilege.setRole("USER");
+    	  privilegeRepository.save(userPrevilege);
+      }
+      Privilege adminPrevilege = privilegeRepository.findByRole("ADMIN");
+      if(adminPrevilege == null) {
+    	  adminPrevilege = new Privilege();
+    	  adminPrevilege.setRole("ADMIN");
+    	  privilegeRepository.save(adminPrevilege);
+      }
       Set<Privilege> roles = new HashSet<Privilege>(privilegeRepository.findAll());
       account.setPrivileges(roles);
       accountRepository.save(account);
@@ -77,13 +89,62 @@ public class AccountServiceImpl implements AccountService {
     if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
       account.setPassword(encoder.encode(account.getPassword()));
       Set<Privilege> roles = new HashSet<Privilege>();
-      roles.add(privilegeRepository.findByRole("USER"));
+      Privilege userPrevilege = privilegeRepository.findByRole("USER");
+      if(userPrevilege == null) {
+    	  userPrevilege = new Privilege();
+    	  userPrevilege.setRole("USER");
+    	  privilegeRepository.save(userPrevilege);
+      }
+      roles.add(userPrevilege);
       account.setPrivileges(roles);
       accountRepository.save(account);
       return account;
     }
     return null;
   }
+  
+  @Override
+  public Account makeAdmin(Account account) {
+    if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
+      Privilege userPrevilege = privilegeRepository.findByRole("USER");
+      if(userPrevilege == null) {
+    	  userPrevilege = new Privilege();
+    	  userPrevilege.setRole("USER");
+    	  privilegeRepository.save(userPrevilege);
+      }
+      Privilege adminPrevilege = privilegeRepository.findByRole("ADMIN");
+      if(adminPrevilege == null) {
+    	  adminPrevilege = new Privilege();
+    	  adminPrevilege.setRole("ADMIN");
+    	  privilegeRepository.save(adminPrevilege);
+      }
+      Set<Privilege> roles = new HashSet<Privilege>(privilegeRepository.findAll());
+      account.setPrivileges(roles);
+      accountRepository.save(account);
+      return account;
+    }
+    return null;
+  }
+
+  @Override
+  public Account makeNoramlUser(Account account) {
+    if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
+      Set<Privilege> roles = new HashSet<Privilege>();
+      Privilege userPrevilege = privilegeRepository.findByRole("USER");
+      if(userPrevilege == null) {
+    	  userPrevilege = new Privilege();
+    	  userPrevilege.setRole("USER");
+    	  privilegeRepository.save(userPrevilege);
+      }
+      roles.add(userPrevilege);
+      account.setPrivileges(roles);
+      accountRepository.save(account);
+      return account;
+    }
+    return null;
+  }
+  
+  
   @Override
   public Account updateNoramlUser(Account account) {
     if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
@@ -318,6 +379,26 @@ public class AccountServiceImpl implements AccountService {
   public void createLog(AccountLog accountLog) {
       accountLog.setDate(new Date());
       accountLogRepository.save(accountLog);
+  }
+
+  @Override
+  public Account makePending(Account account) {
+      if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
+      	account.setPending(true);
+          accountRepository.save(account);
+          return account;
+        }
+        return null;
+  }
+  
+  @Override
+  public Account relaxPending(Account account) {
+      if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
+      	account.setPending(false);
+          accountRepository.save(account);
+          return account;
+        }
+        return null;
   }
 
 }

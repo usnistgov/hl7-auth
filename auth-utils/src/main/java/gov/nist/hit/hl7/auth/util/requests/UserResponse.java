@@ -42,12 +42,15 @@ public class UserResponse {
     this.authorities = authorities;
   }
 
+  private String id;
   private String username;
   private List<String> authorities = new ArrayList<String>();
 
   private String email;
   private String fullName;
   private String organization;
+  
+  private boolean pending;
 
   public String getUsername() {
     return username;
@@ -79,4 +82,20 @@ public class UserResponse {
   public void setFullName(String fullName) {
     this.fullName = fullName;
   }
+
+public boolean isPending() {
+	return pending;
+}
+
+public void setPending(boolean pending) {
+	this.pending = pending;
+}
+
+public String getId() {
+	return id;
+}
+
+public void setId(String id) {
+	this.id = id;
+}
 }

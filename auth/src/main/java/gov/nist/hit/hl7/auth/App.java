@@ -1,6 +1,8 @@
 package gov.nist.hit.hl7.auth;
 
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -18,7 +20,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import gov.nist.hit.hl7.auth.domain.Account;
+import gov.nist.hit.hl7.auth.domain.Privilege;
+import gov.nist.hit.hl7.auth.repository.AccountRepository;
 import gov.nist.hit.hl7.auth.repository.PrivilegeRepository;
 import gov.nist.hit.hl7.auth.service.AccountService;
 
@@ -43,11 +49,23 @@ public class App implements CommandLineRunner {
   @Autowired
   PrivilegeRepository priviliges;
 
+  
+  @Autowired
+  private AccountRepository accountRepository;
+  
+  
   @Autowired
   AccountService accountService;
   
   @Autowired
   Environment env;
+  
+  @Autowired
+  private PasswordEncoder encoder;
+
+  
+  @Autowired
+  PrivilegeRepository privilegeRepository;
 
   public static void main(String[] args) {
     SpringApplication.run(App.class, args);
@@ -79,18 +97,35 @@ public class App implements CommandLineRunner {
   }
 
   @PostConstruct
-  void converAccounts() {
-    // try {
-    // Privilege user = new Privilege("USER");
-    // Privilege admin = new Privilege("ADMIN");
-    //
-    // priviliges.save(user);
-    // priviliges.save(admin);
-    // accountService.createAccountsFromLegacy();
-    // } catch (IOException e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
-
+  void createTestAccounts() {
+//	  for(int i = 0; i < 77; i ++) {
+//		  Account a = new Account();
+//	      Privilege userPrevilege = privilegeRepository.findByRole("USER");
+//	      if(userPrevilege == null) {
+//	    	  userPrevilege = new Privilege();
+//	    	  userPrevilege.setRole("USER");
+//	    	  privilegeRepository.save(userPrevilege);
+//	      }
+//	      Privilege adminPrevilege = privilegeRepository.findByRole("ADMIN");
+//	      if(adminPrevilege == null) {
+//	    	  adminPrevilege = new Privilege();
+//	    	  adminPrevilege.setRole("ADMIN");
+//	    	  privilegeRepository.save(adminPrevilege);
+//	      }
+//	      
+//		  a.setEmail("anyone" + i + "@nist.gov");
+//		  a.setFullName("unknown Last" + i);
+//		  a.setOrganization("ANYCOMPANY");
+//		  a.setPassword(encoder.encode("Q1w2e3r4"));
+//		  a.setPending(false);
+//		  Set<Privilege> roles = new HashSet<Privilege>();
+//		  roles.add(userPrevilege);
+//		  a.setPrivileges(roles);
+//		  a.setSignedConfidentialityAgreement(true);
+//		  a.setUsername("testuser" + i);
+//		  
+//		  this.accountRepository.save(a);
+//	}
   }
+ 
 }

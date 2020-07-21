@@ -165,10 +165,84 @@ public class AccountController {
 		  u.setFullName(a.getFullName());
 		  u.setOrganization(a.getOrganization());
 		  u.setAuthorities(a.getPrivilegesStr());
+		  u.setPending(a.isPending());
+		  u.setId(a.getId());
 		  results.getUsers().add(u);
 	  });
 
     return results;
+  }
+  
+  @RequestMapping(value = "/api/tool/make-admin/{username}", method = RequestMethod.GET)
+  @ResponseBody
+  public UserResponse makeAdmin(@PathVariable("username") String username, HttpServletResponse request)
+      throws Exception {
+    Account account = accountService.getAccountByUsername(username);
+    if (account == null) {
+        throw new Exception("username: " + username + "is not found");
+    } else {
+    	account = this.accountService.makeAdmin(account);
+        UserResponse u = new UserResponse();
+        u.setUsername(username);
+        u.setFullName(account.getFullName());
+        u.setEmail(account.getEmail());
+        u.setOrganization(account.getOrganization());
+        return u;
+    }
+  }
+  
+  @RequestMapping(value = "/api/tool/make-normal/{username}", method = RequestMethod.GET)
+  @ResponseBody
+  public UserResponse makeNormal(@PathVariable("username") String username, HttpServletResponse request)
+      throws Exception {
+    Account account = accountService.getAccountByUsername(username);
+    if (account == null) {
+        throw new Exception("username: " + username + "is not found");
+    } else {
+    	account = this.accountService.makeNoramlUser(account);
+        UserResponse u = new UserResponse();
+        u.setUsername(username);
+        u.setFullName(account.getFullName());
+        u.setEmail(account.getEmail());
+        u.setOrganization(account.getOrganization());
+        return u;
+    }
+  }
+  
+  @RequestMapping(value = "/api/tool/make-pending/{username}", method = RequestMethod.GET)
+  @ResponseBody
+  public UserResponse makePending(@PathVariable("username") String username, HttpServletResponse request)
+      throws Exception {
+    Account account = accountService.getAccountByUsername(username);
+    if (account == null) {
+        throw new Exception("username: " + username + "is not found");
+    } else {
+    	accountService.makePending(account);
+        UserResponse u = new UserResponse();
+        u.setUsername(username);
+        u.setFullName(account.getFullName());
+        u.setEmail(account.getEmail());
+        u.setOrganization(account.getOrganization());
+        return u;
+    }
+  }
+  
+  @RequestMapping(value = "/api/tool/relax-pending/{username}", method = RequestMethod.GET)
+  @ResponseBody
+  public UserResponse relaxPending(@PathVariable("username") String username, HttpServletResponse request)
+      throws Exception {
+    Account account = accountService.getAccountByUsername(username);
+    if (account == null) {
+        throw new Exception("username: " + username + "is not found");
+    } else {
+    	accountService.relaxPending(account);
+        UserResponse u = new UserResponse();
+        u.setUsername(username);
+        u.setFullName(account.getFullName());
+        u.setEmail(account.getEmail());
+        u.setOrganization(account.getOrganization());
+        return u;
+    }
   }
 
   @RequestMapping(value = "/api/tool/user/{username}", method = RequestMethod.GET)
