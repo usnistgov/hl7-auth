@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
+import java.util.HashMap;
+
 import javax.security.sasl.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +37,7 @@ import gov.nist.hit.hl7.auth.util.requests.RegistrationRequest;
 import gov.nist.hit.hl7.auth.util.requests.UserListResponse;
 import gov.nist.hit.hl7.auth.util.requests.UserResponse;
 import gov.nist.hit.hl7.auth.util.requests.AccountLogRequest;
+import gov.nist.hit.hl7.auth.util.requests.ActivityRequest;
 
 @Controller
 public class AccountController {
@@ -250,6 +253,36 @@ public class AccountController {
           "User Logging successfull", null, false, new Date(), userResponse);
     }
   }
+
+  @RequestMapping(value = "/api/tool/activity", method = RequestMethod.POST, produces = {"application/json"})
+
+  public @ResponseBody ConnectionResponseMessage<UserResponse> activity(
+      @RequestBody ActivityRequest request, HttpServletResponse response) throws Exception {
+    Account account = accountService.getAccountByUsername(request.getUsername());
+    if (account == null) {
+
+        throw new Exception("username: " + request.getUsername() + "is not found");
+
+    } else {
+
+        HashMap<String, String> activities = account.getActivities();
+        if (activities == null)
+            activities = new HashMap<String, String>();
+
+        for (HashMap.Entry<String, String> entry : request.getActivities().entrySet())
+            activities.put(entry.getKey(), entry.getValue());
+
+        account.setActivities(activities);
+
+        accountService.updateNoramlUser(account);
+
+        UserResponse userResponse = new UserResponse(request.getUsername());
+        return new ConnectionResponseMessage<UserResponse>(
+                Status.SUCCESS, null, "User Logging successfull",
+                null, false, new Date(), userResponse);
+    }
+  }
+
 
   private void sendAccountPasswordResetRequestNotification(Account acc, String url) {
     SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);

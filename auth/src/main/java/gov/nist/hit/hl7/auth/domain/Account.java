@@ -1,5 +1,6 @@
 package gov.nist.hit.hl7.auth.domain;
 
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,9 @@ public class Account {
 	private Boolean signedConfidentialityAgreement = false;
 	@DBRef
 	private Set<Privilege> privileges;
+
+    private List<AccountLog> accountLogs;
+    private HashMap<String, String> activities;
 
 	public String getUsername() {
 		return username;
@@ -101,6 +105,22 @@ public class Account {
 	public void setPrivileges(Set<Privilege> privileges) {
 		this.privileges = privileges;
 	}
+
+    public List<AccountLog> getAccountLogs() {
+        return accountLogs;
+    }
+
+    public void setAccountLogs(List<AccountLog> accountLogs) {
+        this.accountLogs = accountLogs;
+    }
+
+    public HashMap<String, String> getActivities() {
+        return activities;
+    }
+
+    public void setActivities(HashMap<String, String> activities) {
+        this.activities = activities;
+    }
 
 	@Transient
 	public UserDetails userDetails() {
