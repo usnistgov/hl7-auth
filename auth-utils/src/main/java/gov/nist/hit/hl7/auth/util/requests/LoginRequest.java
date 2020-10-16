@@ -6,6 +6,7 @@ public class LoginRequest {
 	}
 	private String username;
 	private String password;
+	private Boolean oldMethod = false;
 	
 	public String getUsername() {
 		return username;
@@ -19,5 +20,10 @@ public class LoginRequest {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
+	public Boolean getOldMethod() {
+		return oldMethod;
+	}
+	public void setOldMethod(Boolean oldMethod) {
+		this.oldMethod = oldMethod;
+	}
 }
