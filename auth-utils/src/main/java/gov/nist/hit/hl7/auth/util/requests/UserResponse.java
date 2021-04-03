@@ -48,6 +48,7 @@ public class UserResponse {
   private String email;
   private String fullName;
   private String organization;
+  private boolean pending;
 
   public String getUsername() {
     return username;
@@ -79,4 +80,12 @@ public class UserResponse {
   public void setFullName(String fullName) {
     this.fullName = fullName;
   }
+
+public boolean isPending() {
+	return pending;
+}
+
+public void setPending(boolean pending) {
+	this.pending = pending;
+}
 }

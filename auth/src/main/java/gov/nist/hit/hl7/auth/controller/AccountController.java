@@ -1,7 +1,9 @@
 package gov.nist.hit.hl7.auth.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.security.sasl.AuthenticationException;
@@ -12,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +27,7 @@ import gov.nist.hit.hl7.auth.domain.PasswordResetToken;
 import gov.nist.hit.hl7.auth.exception.PasswordChangeException;
 import gov.nist.hit.hl7.auth.exception.RegistrationException;
 import gov.nist.hit.hl7.auth.service.AccountService;
+import gov.nist.hit.hl7.auth.util.requests.AccountLogRequest;
 import gov.nist.hit.hl7.auth.util.requests.ChangePasswordConfirmRequest;
 import gov.nist.hit.hl7.auth.util.requests.ChangePasswordRequest;
 import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage;
@@ -34,7 +36,6 @@ import gov.nist.hit.hl7.auth.util.requests.PasswordResetTokenResponse;
 import gov.nist.hit.hl7.auth.util.requests.RegistrationRequest;
 import gov.nist.hit.hl7.auth.util.requests.UserListResponse;
 import gov.nist.hit.hl7.auth.util.requests.UserResponse;
-import gov.nist.hit.hl7.auth.util.requests.AccountLogRequest;
 
 @Controller
 public class AccountController {
@@ -161,6 +162,17 @@ public class AccountController {
 	  accountService.findAll().forEach(a -> {
 		  UserResponse u = new UserResponse();
 		  u.setUsername(a.getUsername());
+		  u.setEmail(a.getEmail());
+		  u.setFullName(a.getFullName());
+		  u.setOrganization(a.getOrganization());
+		  List<String> authorities = new ArrayList<String>();
+		  if(a.getPrivileges() != null) {
+			  a.getPrivileges().forEach(item -> {
+				  authorities.add(item.getRole());
+			  });			  
+		  }
+		  u.setPending(a.isPending());
+		  u.setAuthorities(authorities);
 		  results.getUsers().add(u);
 	  });
 
