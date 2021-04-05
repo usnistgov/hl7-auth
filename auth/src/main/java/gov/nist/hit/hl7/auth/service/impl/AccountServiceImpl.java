@@ -252,6 +252,12 @@ public class AccountServiceImpl implements AccountService {
     // TODO Auto-generated method stub
     return accountRepository.findByEmail(email);
   }
+  
+  @Override
+  public Account findByUsername(String username) {
+    // TODO Auto-generated method stub
+    return accountRepository.findByUsername(username);
+  }
 
 
   @Override
