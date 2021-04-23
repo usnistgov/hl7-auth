@@ -78,9 +78,9 @@ public class App extends SpringBootServletInitializer {
 //
 //	}
 
-	@PostConstruct
-	void converAccounts() throws IOException, CsvValidationException {
-
-		accountService.createAccountsFromLegacy();
-	}
+//	@PostConstruct
+//	void converAccounts() throws IOException, CsvValidationException {
+//
+//		accountService.createAccountsFromLegacy();
+//	}
 }
