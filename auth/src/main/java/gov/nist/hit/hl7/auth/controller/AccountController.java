@@ -1,7 +1,11 @@
 package gov.nist.hit.hl7.auth.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import java.util.HashMap;
@@ -14,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,9 +28,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import gov.nist.hit.hl7.auth.domain.Account;
 import gov.nist.hit.hl7.auth.domain.AccountLog;
 import gov.nist.hit.hl7.auth.domain.PasswordResetToken;
+import gov.nist.hit.hl7.auth.domain.Privilege;
 import gov.nist.hit.hl7.auth.exception.PasswordChangeException;
 import gov.nist.hit.hl7.auth.exception.RegistrationException;
+import gov.nist.hit.hl7.auth.repository.PrivilegeRepository;
 import gov.nist.hit.hl7.auth.service.AccountService;
+import gov.nist.hit.hl7.auth.util.requests.AccountLogRequest;
+import gov.nist.hit.hl7.auth.util.requests.AdminUserRequest;
 import gov.nist.hit.hl7.auth.util.requests.ChangePasswordConfirmRequest;
 import gov.nist.hit.hl7.auth.util.requests.ChangePasswordRequest;
 import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage;
@@ -49,6 +56,8 @@ public class AccountController {
   @Autowired
   private SimpleMailMessage templateMessage;
 
+  @Autowired
+  private PrivilegeRepository privilegeRepository;
 
   @Autowired
   private JavaMailSender mailSender;
@@ -86,10 +95,10 @@ public class AccountController {
   public ConnectionResponseMessage<PasswordResetTokenResponse> getResetTokenString(
       HttpServletRequest request, @RequestBody ChangePasswordRequest requestObject,
       HttpServletResponse response) throws PasswordChangeException {
-    Account user = accountService.findByEmail(requestObject.getEmail());
+    Account user = accountService.findByUsername(requestObject.getUsername());
     if (user == null) {
       throw new PasswordChangeException(
-          "Could not found an account with E-mail :" + requestObject.getEmail());
+          "Could not found an account with Username :" + requestObject.getUsername());
     }
     try {
       String token = UUID.randomUUID().toString();
@@ -162,8 +171,19 @@ public class AccountController {
 		  u.setEmail(a.getEmail());
 		  u.setFullName(a.getFullName());
 		  u.setOrganization(a.getOrganization());
+
 		  u.setAuthorities(a.getPrivilegesStr());
 		  u.setOld(a.isOld());
+
+		  List<String> authorities = new ArrayList<String>();
+		  if(a.getPrivileges() != null) {
+			  a.getPrivileges().forEach(item -> {
+				  authorities.add(item.getRole());
+			  });			  
+		  }
+		  u.setPending(a.isPending());
+		  u.setAuthorities(authorities);
+
 		  results.getUsers().add(u);
 	  });
 
@@ -219,10 +239,6 @@ public class AccountController {
         throw new Exception("username: " + user.getUsername() + "is not found");
 
         
-    } else if (!a.getEmail().equals(user.getEmail()) &&  accountService.emailExist(user.getEmail())) {
-
-      throw new Exception("e-mail: " + user.getEmail() + "is Already used");
-
     } else {
         UserResponse u = new UserResponse(user.getUsername());
 
@@ -243,6 +259,28 @@ public class AccountController {
 
         return new ConnectionResponseMessage<UserResponse>(Status.SUCCESS, null,
           "UserProfileUpdate successfull", null, false, new Date(), u);
+    }
+  }
+  
+  @RequestMapping(value = "/api/tool/adminUpdate", method = RequestMethod.POST, produces = {"application/json"})
+  public @ResponseBody ConnectionResponseMessage<UserResponse> updatePedningAndAdmin(
+      @RequestBody AdminUserRequest requestPara, HttpServletResponse response) throws Exception {
+    Account a = accountService.getAccountByUsername(requestPara.getUsername());
+    if (a == null) {
+        throw new Exception("username: " + requestPara.getUsername() + "is not found");
+    } else {
+    	a.setPending(requestPara.isPending());
+    	if(requestPara.isAdmin()) {
+    	      Set<Privilege> roles = new HashSet<Privilege>(privilegeRepository.findAll());
+    	      a.setPrivileges(roles);
+    	}else {
+    		Set<Privilege> roles = new HashSet<Privilege>();
+    	      roles.add(privilegeRepository.findByRole("USER"));
+    	      a.setPrivileges(roles);
+    	}
+        accountService.updateNoramlUser(a);
+        return new ConnectionResponseMessage<UserResponse>(Status.SUCCESS, null,
+                "UserProfileUpdate successfull", null, false, new Date(), new UserResponse(requestPara.getUsername()));
     }
   }
 

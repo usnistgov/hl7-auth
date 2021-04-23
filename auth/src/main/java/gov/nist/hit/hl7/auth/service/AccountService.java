@@ -47,6 +47,8 @@ public interface AccountService extends UserDetailsService {
   public Account findByAccountId(Long accountID);
 
   public Account findByEmail(String email);
+  
+  public Account findByUsername(String username);
 
   public PasswordResetToken createPasswordResetTokenForUser(Account user, String token);
 

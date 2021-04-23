@@ -302,6 +302,12 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
+	public Account findByUsername(String username) {
+		// TODO Auto-generated method stub
+		return accountRepository.findByUsername(username);
+	}
+
+	@Override
 	public PasswordResetToken createPasswordResetTokenForUser(Account user, String token) {
 		PasswordResetToken mytoken = new PasswordResetToken();
 		mytoken.setUsername(user.getUsername());

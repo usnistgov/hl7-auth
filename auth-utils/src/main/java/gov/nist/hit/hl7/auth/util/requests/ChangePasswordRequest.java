@@ -21,6 +21,8 @@ public class ChangePasswordRequest {
    * 
    */
 
+  private String username;
+  
   private String email;
 
   private String url;
@@ -30,17 +32,6 @@ public class ChangePasswordRequest {
     // TODO Auto-generated constructor stub
   }
 
-
-  public String getEmail() {
-    return email;
-  }
-
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-
   public String getUrl() {
     return url;
   }
@@ -49,5 +40,21 @@ public class ChangePasswordRequest {
   public void setUrl(String url) {
     this.url = url;
   }
+
+public String getUsername() {
+	return username;
+}
+
+public void setUsername(String username) {
+	this.username = username;
+}
+
+public String getEmail() {
+	return email;
+}
+
+public void setEmail(String email) {
+	this.email = email;
+}
 
 }

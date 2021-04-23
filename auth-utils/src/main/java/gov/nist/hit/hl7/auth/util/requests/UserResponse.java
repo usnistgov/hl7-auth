@@ -21,71 +21,86 @@ import org.springframework.security.core.GrantedAuthority;
  *
  */
 public class UserResponse {
-  /**
-   * @param username2
-   */
-  public UserResponse(String username) {
-    // TODO Auto-generated constructor stub
-    this.username = username;
-  }
+	/**
+	 * @param username2
+	 */
+	public UserResponse(String username) {
+		// TODO Auto-generated constructor stub
+		this.username = username;
+	}
 
-  public UserResponse() {
-    // TODO Auto-generated constructor stub
-    super();
-  }
+	public UserResponse() {
+		// TODO Auto-generated constructor stub
+		super();
+	}
 
-  public List<String> getAuthorities() {
-    return authorities;
-  }
+	public List<String> getAuthorities() {
+		return authorities;
+	}
 
-  public void setAuthorities(List<String> authorities) {
-    this.authorities = authorities;
-  }
+	public void setAuthorities(List<String> authorities) {
+		this.authorities = authorities;
+	}
 
-  private String username;
-  private List<String> authorities = new ArrayList<String>();
+	private String username;
+	private List<String> authorities = new ArrayList<String>();
 
-  private String email;
-  private String fullName;
-  private String organization;
-  private boolean old;
+	private String email;
+	private String fullName;
+	private String organization;
+	private boolean old;
+	private boolean pending;
 
-  public String getUsername() {
-    return username;
-  }
+	public String getUsername() {
+		return username;
+	}
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-  public void addAuthority(GrantedAuthority auth) {
-    authorities.add(auth.getAuthority());
-  }
+	public void addAuthority(GrantedAuthority auth) {
+		authorities.add(auth.getAuthority());
+	}
 
-  public String getEmail() {
-    return email;
-  }
-  public void setEmail(String email) {
-    this.email = email;
-  }
-  public String getOrganization() {
-    return organization;
-  }
-  public void setOrganization(String organization) {
-    this.organization = organization;
-  }
-  public String getFullName() {
-    return fullName;
-  }
-  public void setFullName(String fullName) {
-    this.fullName = fullName;
-  }
+	public String getEmail() {
+		return email;
+	}
 
-public boolean isOld() {
-	return old;
-}
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-public void setOld(boolean old) {
-	this.old = old;
-}
+	public String getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(String organization) {
+		this.organization = organization;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public boolean isOld() {
+		return old;
+	}
+
+	public void setOld(boolean old) {
+		this.old = old;
+	}
+
+	public boolean isPending() {
+		return pending;
+	}
+
+	public void setPending(boolean pending) {
+		this.pending = pending;
+
+	}
 }
