@@ -1,14 +1,14 @@
 package gov.nist.hit.hl7.auth.service.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.security.sasl.AuthenticationException;
 
@@ -20,9 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 
 import gov.nist.hit.hl7.auth.converter.OldAccount;
 import gov.nist.hit.hl7.auth.converter.OldUser;
@@ -30,294 +29,341 @@ import gov.nist.hit.hl7.auth.domain.Account;
 import gov.nist.hit.hl7.auth.domain.AccountLog;
 import gov.nist.hit.hl7.auth.domain.PasswordResetToken;
 import gov.nist.hit.hl7.auth.domain.Privilege;
+import gov.nist.hit.hl7.auth.repository.AccountLogRepository;
 import gov.nist.hit.hl7.auth.repository.AccountRepository;
 import gov.nist.hit.hl7.auth.repository.PasswordResetTokenRepository;
 import gov.nist.hit.hl7.auth.repository.PrivilegeRepository;
-import gov.nist.hit.hl7.auth.repository.AccountLogRepository;
 import gov.nist.hit.hl7.auth.service.AccountService;
 
 @Service("accountService")
 public class AccountServiceImpl implements AccountService {
 
-  @Autowired
-  private AccountRepository accountRepository;
+	@Autowired
+	private AccountRepository accountRepository;
 
-  @Autowired
-  private PasswordResetTokenRepository passwordResetTokenRepository;
+	@Autowired
+	private PasswordResetTokenRepository passwordResetTokenRepository;
 
-  @Autowired
-  private PrivilegeRepository privilegeRepository;
+	@Autowired
+	private PrivilegeRepository privilegeRepository;
 
-  @Autowired
-  private PasswordEncoder encoder;
+	@Autowired
+	private PasswordEncoder encoder;
 
-  @Autowired
-  private AccountLogRepository accountLogRepository;
+	@Autowired
+	private AccountLogRepository accountLogRepository;
 
-  @Override
-  public Account getAccountByUsername(String username) {
-    return accountRepository.findByUsername(username);
-  }
+	@Override
+	public Account getAccountByUsername(String username) {
+		return accountRepository.findByUsername(username);
+	}
 
-  @Override
-  public Account createAdmin(Account account) {
+	@Override
+	public Account createAdmin(Account account) {
 
-    if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
-      account.setPassword(encoder.encode(account.getPassword()));
-      Set<Privilege> roles = new HashSet<Privilege>(privilegeRepository.findAll());
-      account.setPrivileges(roles);
-      accountRepository.save(account);
-      return account;
-    }
-    return null;
-  }
+		if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
+			account.setOld(false);
+			account.setPassword(encoder.encode(account.getPassword()));
+			Set<Privilege> roles = new HashSet<Privilege>(privilegeRepository.findAll());
+			account.setPrivileges(roles);
+			accountRepository.save(account);
+			return account;
+		}
+		return null;
+	}
 
-  @Override
-  public Account createNoramlUser(Account account) {
-    if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
-      account.setPassword(encoder.encode(account.getPassword()));
-      Set<Privilege> roles = new HashSet<Privilege>();
-      roles.add(privilegeRepository.findByRole("USER"));
-      account.setPrivileges(roles);
-      accountRepository.save(account);
-      return account;
-    }
-    return null;
-  }
-  @Override
-  public Account updateNoramlUser(Account account) {
-    if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
-      accountRepository.save(account);
-      return account;
-    }
-    return null;
-  }
+	@Override
+	public Account createNoramlUser(Account account) {
+		if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
+			account.setOld(false);
+			account.setPassword(encoder.encode(account.getPassword()));
+			Set<Privilege> roles = new HashSet<Privilege>();
+			roles.add(privilegeRepository.findByRole("USER"));
+			account.setPrivileges(roles);
+			accountRepository.save(account);
+			return account;
+		}
+		return null;
+	}
 
-  @Override
-  public void deleteAll() {
+	@Override
+	public Account updateNoramlUser(Account account) {
+		if (!account.getUsername().isEmpty() && !account.getPassword().isEmpty()) {
+			accountRepository.save(account);
+			return account;
+		}
+		return null;
+	}
 
-    accountRepository.deleteAll();
-  }
+	@Override
+	public void deleteAll() {
 
-  @Override
-  public Account getCurrentUser() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !(authentication.getPrincipal() instanceof Account)) {
-      return null;
-    }
-    return (Account) authentication.getPrincipal();
-  }
+		accountRepository.deleteAll();
+	}
 
-  @Override
-  public Account createUser(Account account, Privilege p) {
-    if (p.getRole().equals("ADMIN")) {
-      this.createAdmin(account);
-    } else {
-      this.createNoramlUser(account);
-    }
-    return null;
-  }
+	@Override
+	public Account getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !(authentication.getPrincipal() instanceof Account)) {
+			return null;
+		}
+		return (Account) authentication.getPrincipal();
+	}
 
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Account a = this.getAccountByUsername(username);
-    if (a != null) {
-      return a.userDetails();
-    } else {
-      throw new UsernameNotFoundException(username);
-    }
-  }
+	@Override
+	public Account createUser(Account account, Privilege p) {
+		if (p.getRole().equals("ADMIN")) {
+			this.createAdmin(account);
+		} else {
+			this.createNoramlUser(account);
+		}
+		return null;
+	}
 
-  @Override
-  public Privilege getPrivilegeByRole(String role) {
-    return this.privilegeRepository.findByRole(role);
-  }
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Account a = this.getAccountByUsername(username);
+		if (a != null) {
+			return a.userDetails();
+		} else {
+			throw new UsernameNotFoundException(username);
+		}
+	}
 
-  @Override
-  public Privilege createPrivilegeByRole(String role) {
-    Privilege p = new Privilege(role);
-    if (this.privilegeRepository.findByRole(role) == null) {
-      this.privilegeRepository.save(p);
-      return p;
-    }
-    return this.privilegeRepository.findByRole(role);
-  }
+	@Override
+	public Privilege getPrivilegeByRole(String role) {
+		return this.privilegeRepository.findByRole(role);
+	}
 
-  @Override
-  public List<Account> findAll() {
-    return accountRepository.findAll();
-    // TODO Auto-generated method stub
-  }
+	@Override
+	public Privilege createPrivilegeByRole(String role) {
+		Privilege p = new Privilege(role);
+		if (this.privilegeRepository.findByRole(role) == null) {
+			this.privilegeRepository.save(p);
+			return p;
+		}
+		return this.privilegeRepository.findByRole(role);
+	}
 
+	@Override
+	public List<Account> findAll() {
+		return accountRepository.findAll();
+		// TODO Auto-generated method stub
+	}
 
-  @Override
-  public boolean emailExist(String email) {
+	@Override
+	public boolean emailExist(String email) {
 
-    Account user = accountRepository.findByEmail(email);
-    if (user != null) {
-      return true;
-    }
-    return false;
-  }
+		Account user = accountRepository.findByEmail(email);
+		if (user != null) {
+			return true;
+		}
+		return false;
+	}
 
-  @Override
-  public boolean userNameExist(String username) {
-    // TODO Auto-generated method stub
-    Account user = accountRepository.findByUsername(username);
-    if (user != null) {
-      return true;
-    }
-    return false;
-  }
+	@Override
+	public boolean userNameExist(String username) {
+		// TODO Auto-generated method stub
+		Account user = accountRepository.findByUsername(username);
+		if (user != null) {
+			return true;
+		}
+		return false;
+	}
 
-  @Override
-  public void createAccountsFromLegacy() throws IOException {
+	@Override
+	public void createAccountsFromLegacy() throws IOException, CsvValidationException {
+		ClassLoader classLoader = getClass().getClassLoader();
+		File userCSVFile = new File(classLoader.getResource("users.csv").getFile());
+		List<List<String>> records = new ArrayList<List<String>>();
+		try (CSVReader csvReader = new CSVReader(new FileReader(userCSVFile));) {
+			String[] values = null;
+			while ((values = csvReader.readNext()) != null) {
+				records.add(Arrays.asList(values));
+			}
+		}
 
+		List<Account> accounts = this.accountRepository.findAll();
+		for (Account account : accounts) {
+			if (!account.isOld()) {
+				account.setOld(false);
+				accountRepository.save(account);
+			}
+		}
 
-    File UserFile = new File("/Users/ena3/hl7-igamt/auth/src/main/resources/json/User.json");
+		for (List<String> record : records) {
+			if (record.get(0).equals("id")) {
 
+			} else {
+				String username = record.get(7);
+				Account exist = this.getAccountByUsername(username);
+				if (exist == null) {
+					System.out.println(username + " is missing, to be added");
 
-    File AccountFile = new File("/Users/ena3/hl7-igamt/auth/src/main/resources/json/Account.json");
+					Account immigrant = new Account();
+					immigrant.setAccountId(Long.parseLong(record.get(0)));
+					immigrant.setEmail(record.get(2));
+					immigrant.setFullName(record.get(4));
+					immigrant.setOld(true);
+					immigrant.setOrganization(record.get(3));
+					immigrant.setPassword(encoder.encode(record.get(8)));
+					immigrant.setPending(false);
+					Set<Privilege> roles = new HashSet<Privilege>();
+					roles.add(privilegeRepository.findByRole("USER"));
+					immigrant.setPrivileges(roles);
+					immigrant.setSignedConfidentialityAgreement(true);
+					immigrant.setUsername(username);
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+					accountRepository.save(immigrant);
+				} else {
+					System.out.println(username + " is exist, to be skiped");
+				}
+			}
+		}
 
-    List<OldUser> users = objectMapper.readValue(new FileInputStream(UserFile),
-        new TypeReference<List<OldUser>>() {});
-    Map<String, OldUser> usersMap = users.stream().collect(
+//    File UserFile = new File("/Users/ena3/hl7-igamt/auth/src/main/resources/json/User.json");
+//
+//
+//    File AccountFile = new File("/Users/ena3/hl7-igamt/auth/src/main/resources/json/Account.json");
+//
+//    ObjectMapper objectMapper = new ObjectMapper();
+//    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//
+//    List<OldUser> users = objectMapper.readValue(new FileInputStream(UserFile),
+//        new TypeReference<List<OldUser>>() {});
+//    Map<String, OldUser> usersMap = users.stream().collect(
+//
+//        Collectors.groupingBy(OldUser::getUsername,
+//            Collectors.collectingAndThen(Collectors.toList(), x -> {
+//              return x.get(0);
+//            })) // returns a LinkedHashMap, keep order
+//
+//    );
+//
+//    List<OldAccount> accounts = objectMapper.readValue(new FileInputStream(AccountFile),
+//        new TypeReference<List<OldAccount>>() {});
+//    Map<String, OldAccount> accountsMap = accounts.stream().collect(
+//
+//        Collectors.groupingBy(OldAccount::getUsername,
+//            Collectors.collectingAndThen(Collectors.toList(), x -> {
+//              return x.get(0);
+//            })));
+//
+//    for (String user : usersMap.keySet()) {
+//      OldUser olduser = usersMap.get(user);
+//      if (accountsMap.containsKey(user)) {
+//        OldAccount oldAccount = accountsMap.get(user);
+//        if (oldAccount != null)
+//          mergeAccunts(accountsMap.get(user), olduser);
+//      }
+//    }
+	}
 
-        Collectors.groupingBy(OldUser::getUsername,
-            Collectors.collectingAndThen(Collectors.toList(), x -> {
-              return x.get(0);
-            })) // returns a LinkedHashMap, keep order
+	private void mergeAccunts(OldAccount oldAccount, OldUser olduser) {
+		Account a = new Account();
+		a.setEmail(oldAccount.getEmail());
+		a.setFullName(oldAccount.getFullName());
+		a.setAccountId(oldAccount.getId());
+		a.setOrganization(oldAccount.getEmployer());
+		a.setUsername(oldAccount.getUsername());
+		if (oldAccount.getPending() != null && oldAccount.getPending().equals("0")) {
+			a.setPending(false);
+		}
+		if (oldAccount.getSignedConfidentialityAgreement() != null
+				&& oldAccount.getSignedConfidentialityAgreement().equals("1")) {
+			a.setSignedConfidentialityAgreement(true);
+		}
+		a.setPassword(olduser.getPassword());
+		Set<Privilege> roles = new HashSet<Privilege>();
+		roles.add(privilegeRepository.findByRole("USER"));
+		if (oldAccount.getAccountType().equals("admin")) {
+			roles.add(privilegeRepository.findByRole("ADMIN"));
+		}
+		a.setPrivileges(roles);
+		accountRepository.save(a);
+	}
 
-    );
+	@Override
+	public Account findByAccountId(Long accountId) {
+		// TODO Auto-generated method stub
+		return accountRepository.findByAccountId(accountId);
+	}
 
-    List<OldAccount> accounts = objectMapper.readValue(new FileInputStream(AccountFile),
-        new TypeReference<List<OldAccount>>() {});
-    Map<String, OldAccount> accountsMap = accounts.stream().collect(
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gov.nist.hit.hl7.auth.service.AccountService#findUserByEmail(java.lang.
+	 * String)
+	 */
+	@Override
+	public Account findByEmail(String email) {
+		// TODO Auto-generated method stub
+		return accountRepository.findByEmail(email);
+	}
 
-        Collectors.groupingBy(OldAccount::getUsername,
-            Collectors.collectingAndThen(Collectors.toList(), x -> {
-              return x.get(0);
-            })));
+	@Override
+	public PasswordResetToken createPasswordResetTokenForUser(Account user, String token) {
+		PasswordResetToken mytoken = new PasswordResetToken();
+		mytoken.setUsername(user.getUsername());
+		mytoken.setEmail(user.getEmail());
+		mytoken.setFullname(user.getFullName());
+		mytoken.setToken(token);
 
-    for (String user : usersMap.keySet()) {
-      OldUser olduser = usersMap.get(user);
-      if (accountsMap.containsKey(user)) {
-        OldAccount oldAccount = accountsMap.get(user);
-        if (oldAccount != null)
-          mergeAccunts(accountsMap.get(user), olduser);
-      }
-    }
-  }
+		Date date = new Date();
+		date.setTime(date.getTime() + PasswordResetToken.getExpiration());
+		mytoken.setExpiryDate(date);
 
-  private void mergeAccunts(OldAccount oldAccount, OldUser olduser) {
-    Account a = new Account();
-    a.setEmail(oldAccount.getEmail());
-    a.setFullName(oldAccount.getFullName());
-    a.setAccountId(oldAccount.getId());
-    a.setOrganization(oldAccount.getEmployer());
-    a.setUsername(oldAccount.getUsername());
-    if (oldAccount.getPending() != null && oldAccount.getPending().equals("0")) {
-      a.setPending(false);
-    }
-    if (oldAccount.getSignedConfidentialityAgreement() != null
-        && oldAccount.getSignedConfidentialityAgreement().equals("1")) {
-      a.setSignedConfidentialityAgreement(true);
-    }
-    a.setPassword(olduser.getPassword());
-    Set<Privilege> roles = new HashSet<Privilege>();
-    roles.add(privilegeRepository.findByRole("USER"));
-    if (oldAccount.getAccountType().equals("admin")) {
-      roles.add(privilegeRepository.findByRole("ADMIN"));
-    }
-    a.setPrivileges(roles);
-    accountRepository.save(a);
-  }
+		passwordResetTokenRepository.save(mytoken);
+		return mytoken;
+	}
 
-  @Override
-  public Account findByAccountId(Long accountId) {
-    // TODO Auto-generated method stub
-    return accountRepository.findByAccountId(accountId);
-  }
+	@Override
+	public boolean validateToken(String token) throws AuthenticationException {
+		PasswordResetToken prt = passwordResetTokenRepository.findByToken(token);
+		if (prt == null) {
+			throw new AuthenticationException("No password resset token ");
+		} else {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see gov.nist.hit.hl7.auth.service.AccountService#findUserByEmail(java.lang.String)
-   */
-  @Override
-  public Account findByEmail(String email) {
-    // TODO Auto-generated method stub
-    return accountRepository.findByEmail(email);
-  }
+			Date current = new Date();
+			if (current.compareTo(prt.getExpiryDate()) < 0) {
+				throw new AuthenticationException("Token Expired");
+			}
 
+		}
+		return true;
 
-  @Override
-  public PasswordResetToken createPasswordResetTokenForUser(Account user, String token) {
-    PasswordResetToken mytoken = new PasswordResetToken();
-    mytoken.setUsername(user.getUsername());
-    mytoken.setEmail(user.getEmail());
-    mytoken.setFullname(user.getFullName());
-    mytoken.setToken(token);
+	}
 
-    Date date = new Date();
-    date.setTime(date.getTime() + PasswordResetToken.getExpiration());
-    mytoken.setExpiryDate(date);
+	@Override
+	public PasswordResetToken changePassword(String newPassword, String token) throws AuthenticationException {
+		PasswordResetToken prt = passwordResetTokenRepository.findByToken(token);
+		if (prt == null) {
+			throw new AuthenticationException("No password resset token ");
+		} else {
 
-    passwordResetTokenRepository.save(mytoken);
-    return mytoken;
-  }
+			Date current = new Date();
+			if (current.compareTo(prt.getExpiryDate()) < 0) {
+				throw new AuthenticationException("Token Expired");
+			}
+			String username = prt.getUsername();
+			Account acc = accountRepository.findByUsername(username);
 
-  @Override
-  public boolean validateToken(String token) throws AuthenticationException {
-    PasswordResetToken prt = passwordResetTokenRepository.findByToken(token);
-    if (prt == null) {
-      throw new AuthenticationException("No password resset token ");
-    } else {
+			if (acc == null) {
+				throw new UsernameNotFoundException("User Not found");
+			} else {
+				acc.setOld(false);
+				acc.setPassword(encoder.encode(newPassword));
+				accountRepository.save(acc);
+				passwordResetTokenRepository.deleteById(prt.getId());
+				return prt;
+			}
+		}
+	}
 
-      Date current = new Date();
-      if (current.compareTo(prt.getExpiryDate()) < 0) {
-        throw new AuthenticationException("Token Expired");
-      }
-
-    }
-    return true;
-
-  }
-
-
-  @Override
-  public PasswordResetToken changePassword(String newPassword, String token)
-      throws AuthenticationException {
-    PasswordResetToken prt = passwordResetTokenRepository.findByToken(token);
-    if (prt == null) {
-      throw new AuthenticationException("No password resset token ");
-    } else {
-
-      Date current = new Date();
-      if (current.compareTo(prt.getExpiryDate()) < 0) {
-        throw new AuthenticationException("Token Expired");
-      }
-      String username = prt.getUsername();
-      Account acc = accountRepository.findByUsername(username);
-
-      if (acc == null) {
-        throw new UsernameNotFoundException("User Not found");
-      } else {
-        acc.setPassword(encoder.encode(newPassword));
-        accountRepository.save(acc);
-        passwordResetTokenRepository.deleteById(prt.getId());
-        return prt;
-      }
-    }
-  }
-
-  @Override
-  public void createLog(AccountLog accountLog) {
-      accountLog.setDate(new Date());
-      accountLogRepository.save(accountLog);
-  }
+	@Override
+	public void createLog(AccountLog accountLog) {
+		accountLog.setDate(new Date());
+		accountLogRepository.save(accountLog);
+	}
 
 }

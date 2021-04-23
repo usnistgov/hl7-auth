@@ -24,6 +24,7 @@ public class Account {
 	private boolean pending = false;
 	private String fullName;
 	private String organization;
+	private boolean old;
 	private Boolean signedConfidentialityAgreement = false;
 	@DBRef
 	private Set<Privilege> privileges;
@@ -141,6 +142,14 @@ public class Account {
 
 	public void setAccountId(Long accountId) {
 		this.accountId = accountId;
+	}
+
+	public boolean isOld() {
+		return old;
+	}
+
+	public void setOld(boolean old) {
+		this.old = old;
 	}
 
 }

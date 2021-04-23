@@ -59,15 +59,10 @@ public class AccountController {
   public @ResponseBody ConnectionResponseMessage<UserResponse> register(
       @RequestBody RegistrationRequest user, HttpServletResponse response) throws Exception {
     Account a = new Account();
+   
+    if (accountService.userNameExist(user.getUsername())) {
 
-
-    if (accountService.emailExist(user.getEmail())) {
-
-      throw new RegistrationException("e-mail: " + user.getEmail() + "is Already used");
-
-    } else if (accountService.userNameExist(user.getUsername())) {
-
-      throw new Exception("username: " + user.getUsername() + "is Already used");
+      throw new Exception("Registration Failed: username: " + user.getUsername() + " is Already used.");
 
 
     } else {
@@ -168,6 +163,7 @@ public class AccountController {
 		  u.setFullName(a.getFullName());
 		  u.setOrganization(a.getOrganization());
 		  u.setAuthorities(a.getPrivilegesStr());
+		  u.setOld(a.isOld());
 		  results.getUsers().add(u);
 	  });
 
@@ -190,9 +186,26 @@ public class AccountController {
         u.setFullName(account.getFullName());
         u.setEmail(account.getEmail());
         u.setOrganization(account.getOrganization());
-
+        u.setAuthorities(account.getPrivilegesStr());
+        u.setOld(account.isOld());
         return u;
     }
+  }
+  
+  @RequestMapping(value = "/api/tool/user/method/{username}", method = RequestMethod.GET)
+  @ResponseBody
+  public UserResponse getCurrentUserMethod(@PathVariable("username") String username, HttpServletResponse request)
+      throws Exception {
+
+    Account account = accountService.getAccountByUsername(username);
+    UserResponse u = new UserResponse();
+    if (account == null) {
+    	u.setOld(false);
+    } else {
+    	u.setOld(account.isOld());
+    }
+    
+    return u;
   }
 
   @RequestMapping(value = "/api/tool/user", method = RequestMethod.POST, produces = {"application/json"})

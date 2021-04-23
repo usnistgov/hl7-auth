@@ -9,6 +9,8 @@ import javax.security.sasl.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import com.opencsv.exceptions.CsvValidationException;
+
 import gov.nist.hit.hl7.auth.domain.Account;
 import gov.nist.hit.hl7.auth.domain.PasswordResetToken;
 import gov.nist.hit.hl7.auth.domain.Privilege;
@@ -40,7 +42,7 @@ public interface AccountService extends UserDetailsService {
 
   boolean userNameExist(String username);
 
-  void createAccountsFromLegacy() throws IOException;
+  void createAccountsFromLegacy() throws IOException, CsvValidationException;
 
   public Account findByAccountId(Long accountID);
 
