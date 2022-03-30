@@ -225,7 +225,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
   @Override
-  public ConnectionResponseMessage<PasswordResetTokenResponse> requestPasswordChange(HttpServletRequest req, String username)
+  public ConnectionResponseMessage<PasswordResetTokenResponse> requestPasswordChange(HttpServletRequest req, String usernameOrEmail)
       throws AuthenticationException {
     // TODO Auto-generated method stub
     try {
@@ -233,7 +233,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       headers.add("Content-type", "application/json");
       RestTemplate restTemplate = new RestTemplate();
       ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
-      changePasswordRequest.setUsername(username);
+      changePasswordRequest.setUsernameOrEmail(usernameOrEmail);
       HttpEntity<ChangePasswordRequest> request =
           new HttpEntity<ChangePasswordRequest>(changePasswordRequest);
       ResponseEntity<ConnectionResponseMessage<PasswordResetTokenResponse>> response = restTemplate

@@ -94,12 +94,12 @@ public class AuthenticationController {
   @RequestMapping(value = "/api/password/reset", method = RequestMethod.POST)
   @ResponseBody
   public ConnectionResponseMessage<PasswordResetTokenResponse> resetPaswordRequest(
-      HttpServletRequest req, HttpServletResponse res, @RequestBody String email)
+      HttpServletRequest req, HttpServletResponse res, @RequestBody String usernameOrEmail)
       throws AuthenticationException {
     try {
 
       ConnectionResponseMessage<PasswordResetTokenResponse> response =
-          authService.requestPasswordChange(req, email);
+          authService.requestPasswordChange(req, usernameOrEmail);
       if (response.getData() instanceof PasswordResetTokenResponse) {
         PasswordResetTokenResponse responseData = (PasswordResetTokenResponse) (response.getData());
         emailService.sendResetTokenUrl(responseData.getFullName(), responseData.getUsername(),
