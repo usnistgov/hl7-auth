@@ -96,10 +96,10 @@ public class AccountController {
   public ConnectionResponseMessage<PasswordResetTokenResponse> getResetTokenString(
       HttpServletRequest request, @RequestBody ChangePasswordRequest requestObject,
       HttpServletResponse response) throws PasswordChangeException {
-    Account user = accountService.findByUsername(requestObject.getUsername());
+    Account user = accountService.findByEmail(requestObject.getUsername());
     if (user == null) {
       throw new PasswordChangeException(
-          "Could not found an account with Username :" + requestObject.getUsername());
+          "Could not found an account with EMAIL :" + requestObject.getUsername());
     }
     try {
       String token = UUID.randomUUID().toString();
