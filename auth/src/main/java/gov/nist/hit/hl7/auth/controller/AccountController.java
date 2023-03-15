@@ -1,6 +1,7 @@
 package gov.nist.hit.hl7.auth.controller;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -96,7 +97,7 @@ public class AccountController {
   public ConnectionResponseMessage<PasswordResetTokenResponse> getResetTokenString(
       HttpServletRequest request, @RequestBody ChangePasswordRequest requestObject,
       HttpServletResponse response) throws PasswordChangeException {
-    Account user = accountService.findByUsername(requestObject.getUsername());
+    Account user = accountService.findByEmail(requestObject.getUsername());
     if (user == null) {
       throw new PasswordChangeException(
           "Could not found an account with Username :" + requestObject.getUsername());
@@ -237,13 +238,14 @@ public class AccountController {
         accountService.updateNoramlUser(a);
 
         return new ConnectionResponseMessage<UserResponse>(Status.SUCCESS, null,
-          "UserProfileUpdate successfull", null, false, new Date(), u);
+          "User Profile Updated successfull", null, false, new Date(), u);
     }
   }
   
   @RequestMapping(value = "/api/tool/adminUpdate", method = RequestMethod.POST, produces = {"application/json"})
   public @ResponseBody ConnectionResponseMessage<UserResponse> updatePedningAndAdmin(
-      @RequestBody AdminUserRequest requestPara, HttpServletResponse response) throws Exception {
+      @RequestBody AdminUserRequest requestPara, HttpServletResponse response, Principal principal) throws Exception {
+	  
     Account a = accountService.getAccountByUsername(requestPara.getUsername());
     if (a == null) {
         throw new Exception("username: " + requestPara.getUsername() + "is not found");
@@ -254,8 +256,8 @@ public class AccountController {
     	      a.setPrivileges(roles);
     	}else {
     		Set<Privilege> roles = new HashSet<Privilege>();
-    	      roles.add(privilegeRepository.findByRole("USER"));
-    	      a.setPrivileges(roles);
+    	    roles.add(privilegeRepository.findByRole("USER"));
+    	    a.setPrivileges(roles);
     	}
         accountService.updateNoramlUser(a);
         return new ConnectionResponseMessage<UserResponse>(Status.SUCCESS, null,

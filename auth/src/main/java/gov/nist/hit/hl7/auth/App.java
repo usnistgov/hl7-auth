@@ -1,5 +1,6 @@
 package gov.nist.hit.hl7.auth;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -19,6 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import gov.nist.hit.hl7.auth.domain.Privilege;
 import gov.nist.hit.hl7.auth.repository.PrivilegeRepository;
 import gov.nist.hit.hl7.auth.service.AccountService;
 
@@ -78,19 +80,19 @@ public class App implements CommandLineRunner {
 
   }
 
-  @PostConstruct
+  //@PostConstruct
   void converAccounts() {
-    // try {
-    // Privilege user = new Privilege("USER");
-    // Privilege admin = new Privilege("ADMIN");
-    //
-    // priviliges.save(user);
-    // priviliges.save(admin);
-    // accountService.createAccountsFromLegacy();
-    // } catch (IOException e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
+     try {
+     Privilege user = new Privilege("USER");
+     Privilege admin = new Privilege("ADMIN");
+    
+     priviliges.save(user);
+     priviliges.save(admin);
+     accountService.createAccountsFromLegacy();
+     } catch (IOException e) {
+     // TODO Auto-generated catch block
+     e.printStackTrace();
+     }
 
   }
 }

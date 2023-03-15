@@ -70,17 +70,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    // TODO Auto-generated method stub
-    /*
-    http.csrf().disable();
-    http.formLogin().disable();
-    http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    http.authorizeRequests().antMatchers("/api/tool/login", "/api/tool/register/").permitAll();
-    http.authorizeRequests().antMatchers("/api/tool/password/**").permitAll();
-    http.addFilterBefore(
-            loginFilter(), UsernamePasswordAuthenticationFilter.class);
-    http.addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
-    */
 
     http.
         csrf().disable()
@@ -89,10 +78,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/tool/login").permitAll()
             .antMatchers("/api/tool/register").permitAll()
             .antMatchers("/api/tool/password/**").permitAll()
-            .antMatchers("/api/tool/accountlog/**").permitAll() 
-            .antMatchers("/api/tool/users").permitAll()
-            .antMatchers("/api/tool/user/**").permitAll()
-            .antMatchers("/api/tool/adminUpdate").permitAll()
+            .antMatchers("/api/tool/accountlog/**").fullyAuthenticated()
+            .antMatchers("/api/tool/users").fullyAuthenticated()
+            .antMatchers("/api/tool/user/**").fullyAuthenticated()
+            .antMatchers("/api/tool/adminUpdate").hasAuthority("ADMIN")
             .antMatchers("/api/login").permitAll()
             .antMatchers("/api/register").permitAll()
             .antMatchers("/api/password/**").permitAll()
@@ -101,9 +90,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
 
-        /*
-        .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
-        */
   }
 
 

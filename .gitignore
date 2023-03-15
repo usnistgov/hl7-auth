@@ -25,3 +25,7 @@ auth/hl7-auth.*.gz
 .classpath
 .settings/
 hl7-auth.log
+
+auth-utils/KeyPair/publicKey.txt
+
+auth-utils/KeyPair/privateKey.txt
