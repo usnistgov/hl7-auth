@@ -79,6 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/tool/register").permitAll()
             .antMatchers("/api/tool/password/**").permitAll()
             .antMatchers("/api/tool/accountlog/**").fullyAuthenticated()
+            .antMatchers("/api/tool/find").fullyAuthenticated()
             .antMatchers("/api/tool/users").fullyAuthenticated()
             .antMatchers("/api/tool/user/**").fullyAuthenticated()
             .antMatchers("/api/tool/adminUpdate").hasAuthority("ADMIN")

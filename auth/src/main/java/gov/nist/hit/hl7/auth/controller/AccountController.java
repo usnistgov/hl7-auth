@@ -13,6 +13,7 @@ import javax.security.sasl.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import gov.nist.hit.hl7.auth.util.requests.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -32,16 +33,7 @@ import gov.nist.hit.hl7.auth.exception.PasswordChangeException;
 import gov.nist.hit.hl7.auth.exception.RegistrationException;
 import gov.nist.hit.hl7.auth.repository.PrivilegeRepository;
 import gov.nist.hit.hl7.auth.service.AccountService;
-import gov.nist.hit.hl7.auth.util.requests.AccountLogRequest;
-import gov.nist.hit.hl7.auth.util.requests.AdminUserRequest;
-import gov.nist.hit.hl7.auth.util.requests.ChangePasswordConfirmRequest;
-import gov.nist.hit.hl7.auth.util.requests.ChangePasswordRequest;
-import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage;
 import gov.nist.hit.hl7.auth.util.requests.ConnectionResponseMessage.Status;
-import gov.nist.hit.hl7.auth.util.requests.PasswordResetTokenResponse;
-import gov.nist.hit.hl7.auth.util.requests.RegistrationRequest;
-import gov.nist.hit.hl7.auth.util.requests.UserListResponse;
-import gov.nist.hit.hl7.auth.util.requests.UserResponse;
 
 @Controller
 public class AccountController {
@@ -186,6 +178,21 @@ public class AccountController {
 
     return results;
   }
+
+  @RequestMapping(value = "/api/tool/find", method = RequestMethod.POST, produces = {"application/json"})
+  @ResponseBody
+  public FindUserResponse getUserByEmail(@RequestBody FindUserRequest user) {
+    Account account = user.isEmail() ? accountService.findByEmail(user.getValue()) : accountService.findByUsername(user.getValue());
+    FindUserResponse userResponse = new FindUserResponse();
+    if(account != null) {
+      userResponse.setExists(true);
+      userResponse.setUsername(account.getUsername());
+    } else {
+      userResponse.setExists(false);
+    }
+    return userResponse;
+  }
+
 
   @RequestMapping(value = "/api/tool/user/{username}", method = RequestMethod.GET)
   @ResponseBody
