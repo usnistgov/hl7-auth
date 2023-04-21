@@ -56,8 +56,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-
-
     PasswordEncoder encoder = new BCryptPasswordEncoder(11);
     return encoder;
   }
@@ -71,7 +69,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
 
-    http.
+    http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
         csrf().disable()
         .formLogin().disable()
         .authorizeRequests()

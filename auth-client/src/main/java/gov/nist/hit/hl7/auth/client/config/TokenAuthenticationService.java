@@ -43,8 +43,23 @@ public class TokenAuthenticationService {
       InvalidKeySpecException, IOException {
 
     Cookie token = WebUtils.getCookie(request, "authCookie");
+	Cookie[] cookies = request.getCookies();
+	if (cookies != null) {
+		for (Cookie cookie : cookies) {
+			System.out.println("==========================================");
+
+			System.out.println(cookie.getName() + " ==" + cookie.getValue() );
+			if (cookie.getName().equals("authCookie")) {
+				System.out.println("Found Cookie");
+				System.out.println(cookie.getValue());
+
+			}
+		}
+	}
+
 
     if (token != null && token.getValue() != null && !token.getValue().isEmpty()) {
+    	System.out.println("Found Cookie");
       Claims claims = Jwts.parser().setSigningKey(crypto.pub(env.getProperty("key.public")))
           .parseClaimsJws(token.getValue()).getBody();
       String username = claims.getSubject();
@@ -60,6 +75,7 @@ public class TokenAuthenticationService {
           new UsernamePasswordAuthenticationToken(username, token.getValue(), authorities);
       return authenticatedUser;
     } else {
+    	System.out.println("=========================NOT authenticated================================== ");
       return null;
     }
   }
