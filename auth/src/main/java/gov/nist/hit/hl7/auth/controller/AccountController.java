@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.security.sasl.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
@@ -177,6 +178,12 @@ public class AccountController {
 	  });
 
     return results;
+  }
+
+  @RequestMapping(value = "/api/tool/usernames", method = RequestMethod.GET)
+  @ResponseBody
+  public List<String> getAllUsernames() {
+    return accountService.findAll().stream().map(Account::getUsername).collect(Collectors.toList());
   }
 
   @RequestMapping(value = "/api/tool/find", method = RequestMethod.POST, produces = {"application/json"})
