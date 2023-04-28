@@ -19,6 +19,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import gov.nist.hit.hl7.auth.domain.Privilege;
 import gov.nist.hit.hl7.auth.repository.PrivilegeRepository;
@@ -74,7 +75,7 @@ public class App implements CommandLineRunner {
     templateMessage.setSubject(env.getProperty(EMAIL_SUBJECT));
     return templateMessage;
   }
-
+  
   @Override
   public void run(String... arg0) throws Exception {
 

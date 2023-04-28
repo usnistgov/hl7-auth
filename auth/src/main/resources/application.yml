@@ -21,7 +21,7 @@ logging:
   file: hl7-auth.log
   path : /var/log/hl7-auth/
   exception-conversion-word: '%wEx'
-  
+    
 security:
     headers:
       frame: true
